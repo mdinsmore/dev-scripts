@@ -1,0 +1,75 @@
+appDir=~/repo/dev/app
+projDir=.
+function show_help() {
+	echo -e "Usage:\n\t$0 [-v|-h|-p<project name>\n\n"
+}
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+verbose=0
+
+while getopts "h?vp:" opt; do
+	case "$opt" in
+	v)  verbose=1
+		;;
+	p)  projDir=$OPTARG
+		;;
+	h|\?)
+		show_help
+		exit 0
+		;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+if [ "$verbose" = "1" ]
+then
+	echo "verbose=$verbose, project='$projDir', Leftovers: $@"
+fi
+
+if [ "$projDir" == "." ]
+then
+	projDir=`pwd`
+fi
+
+for i in `ls $appDir`
+do
+	cd $appDir/$i
+	version=`git log -1 | grep "^    version " | cut -d' ' -f6`
+	echo "$i $version"
+done >> /tmp/version-$$.txt
+
+if [ "$verbose" = "1" ]
+then
+	cat /tmp/version-$$.txt
+fi
+
+cd $projDir
+
+pwd
+
+for i in `cat requirements/production.txt | grep "=="`
+do
+	package=`echo $i | cut -d"=" -f1| cut -c4-`
+	projVersion=`echo $i | cut -d"=" -f3`
+
+	appVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f2`
+
+	if [ "$projVersion" = "$appVersion" ]
+	then
+		echo "App '$package' (version $projVersion) is up to date ($appVersion)"
+	else
+		if [ "$appVersion" = "" ]
+		then
+			echo "App '$package' (version $projVersion) has updates that need to be released"
+		else
+			echo "App '$package' (version $projVersion) is not up to date current version is $appVersion"
+		fi
+	fi
+done
+
+rm /tmp/version-$$.txt

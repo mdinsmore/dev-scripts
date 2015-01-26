@@ -1,0 +1,16 @@
+APP_DIR=$HOME/repo/dev/app
+
+for app in `ls $APP_DIR`
+do
+    cd $APP_DIR/$app
+    git remote update > /dev/null 2>&1
+    git status > /tmp/app-status-$$
+    branch=`grep "^On branch" /tmp/app-status-$$ | cut -c10-`
+    status=`grep "^Your branch is" /tmp/app-status-$$ | cut -c15-`
+    grep "^Changes" /tmp/app-status-$$ > /tmp/app-status-$$-a
+    grep "^Untracked" /tmp/app-status-$$ >> /tmp/app-status-$$-a
+    changes=`cat /tmp/app-status-$$-a | cut -d: -f1 | sed ':a;N;$!ba;s/\n/ and /g'`
+
+    echo "$app|$branch|$status|$changes" | gawk  -F \| '{ printf "%-15.15s %-20.20s %s %s\n", $1, $2, $3, $4 }'
+
+done
