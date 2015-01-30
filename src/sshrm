@@ -1,0 +1,11 @@
+#! /bin/bash
+
+if [ "$1" = "" ]
+then
+	echo -e "Usage:\n\t$0 <host to remove from ssh known hosts file>\n"
+	exit -1
+fi
+
+HOST=$1
+
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R $HOST

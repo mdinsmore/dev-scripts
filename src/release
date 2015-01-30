@@ -1,0 +1,3 @@
+source ~/repo/dev/module/fabric/venv-fabric/bin/activate && \
+fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
+cd .

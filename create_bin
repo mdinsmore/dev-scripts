@@ -1,0 +1,48 @@
+#! /bin/bash
+
+ok_to_update=false
+echo $0
+echo `dirname $0`
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+echo $DIR
+cd $DIR
+if [ `pwd` != $DIR ]
+then
+	echo "Could not change to the directory $DIR"
+else
+	echo -e "\n+------------------------------------------------------"
+	echo -e   "| OK to add all scripts from \n|\t`pwd`/src \n| to your \n|\t$HOME/bin \n| directory (y/N) \c"
+	read ok
+
+	if [ "$ok" == 'y' -o "$ok" == "Y" ]
+	then
+		ok_to_update=true
+	fi
+fi
+
+# N.B. only do this with trusted variables (i.e. set directly your script)
+if $ok_to_update ; then
+	if [ ! -d $HOME/bin ]
+	then
+		echo "ln -s `pwd`/$script $HOME/bin/"
+		echo "Created $HOME/bin - add this directory to your PATH enviroment variable  in .bashrc"
+	fi
+
+	for script in `ls src`
+	do
+		if [ ! -x $HOME/bin/$script ]
+		then
+			if [ -x src/$script ]
+			then
+				ln -s `pwd`/src/$script $HOME/bin/
+				# chmod u+x $HOME/bin/$script
+				echo "Added \'$script\' to $HOME/bin/"
+			else
+				echo "Ignoring $src/$script since it is not executable"
+			fi
+		else
+			echo "Script $src/$script already in $HOME/bin"
+		fi
+	done
+fi

@@ -1,3 +1,4 @@
+#! /bin/bash
 APP_DIR=$HOME/repo/dev/app
 
 for app in `ls $APP_DIR`
