@@ -23,6 +23,9 @@ else
 	if [ -f ${BACKUP_PATH}/${FILE_NAME} ]
 	then
 		FILE_PATH=${BACKUP_PATH}/${FILE_NAME}
+	else
+		echo "${FILE_NAME} does not exist"
+		exit
 	fi
 fi
 

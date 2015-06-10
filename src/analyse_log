@@ -1,0 +1,24 @@
+LOG_FILE_NAME="access.log"
+CSV_FILE_NAME="acc-dom.csv"
+TEMP_FILE_NAME="/tmp/$$_acc_ip.txt"
+if [ ! -f $LOG_FILE_NAME ]
+then
+	echo -e "\nExpecting a file called $LOG_FILE_NAME in the current directory\n"
+	exit
+fi
+
+cat $LOG_FILE_NAME | cut -d' ' -f1 | sort -u > $TEMP_FILE_NAME
+
+echo "'IP','Organisation','Country','Net Name'" > $CSV_FILE_NAME
+
+for ip in `cat $TEMP_FILE_NAME`
+do
+	whois $ip > /tmp/whois_$$
+	org=`grep "^Organization" /tmp/whois_$$ | cut -d: -f2|sort -u | line | xargs`
+	cty=`grep "^country" /tmp/whois_$$ | cut -d: -f2|sort -u | line | xargs`
+	netname=`grep "^netname" /tmp/whois_$$ | cut -d: -f2 | sort -u | line | xargs` 
+
+	echo "'$ip','$org','$cty','$netname'" >> $CSV_FILE_NAME
+done
+
+rm $TEMP_FILE_NAME /tmp/whois_$$
