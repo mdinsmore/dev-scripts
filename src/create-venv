@@ -1,0 +1,18 @@
+if [ -z "$1" ]; then
+	echo -e "\nUsage:\n"
+	echo -e "\t`basename $0` <venv>\n"
+	echo -e "\nWhere:\n"
+	echo -e "\tvenv - is the name of the <name of virtual environment (exluding"
+	echo -e "\t       the 'venv-' prefix)>\n"
+	exit 1
+fi
+
+VENV="venv-$1"
+
+pyvenv-3.4 --without-pip $VENV
+source $VENV/bin/activate
+wget https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py
+python get-pip.py
+mv get-pip.py ~/bin/
+pip install -r requirements/local.txt
+

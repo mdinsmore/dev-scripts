@@ -1,0 +1,4 @@
+for i in `git log | grep commit | cut -d' ' -f2`
+do
+	git show $i
+done
