@@ -1,0 +1,23 @@
+if [ ! -f requirements/base.txt ]
+then
+	echo "Not base requirements file"
+	exit
+fi
+
+pip freeze > /tmp/$$
+
+for line in `cat requirements/base.txt`
+do
+	pkg=`echo ${line} | cut -d= -f1`
+	base_version=`echo ${line} | cut -d= -f3`
+	installed_version=`grep "^${pkg}==" /tmp/$$ | cut -d= -f3`
+	# echo "${line}, ${pkg}, ${base_version}, ${installed_version}"
+	if [ "${base_version}" != "${installed_version}" ]
+	then
+		echo "${pkg} - Base Version: ${base_version} Installed Version: ${installed_version}"
+	else
+		echo "${pkg} - on latest version: ${installed_version}"
+	fi
+done
+
+rm /tmp/$$
