@@ -1,6 +1,6 @@
 if [ ! -f requirements/base.txt ]
 then
-	echo "Not base requirements file"
+	echo "No base requirements file in the current directory"
 	exit
 fi
 
@@ -10,7 +10,7 @@ for line in `cat requirements/base.txt`
 do
 	pkg=`echo ${line} | cut -d= -f1`
 	base_version=`echo ${line} | cut -d= -f3`
-	installed_version=`grep "^${pkg}==" /tmp/$$ | cut -d= -f3`
+	installed_version=`grep -i "^${pkg}==" /tmp/$$ | cut -d= -f3`
 	# echo "${line}, ${pkg}, ${base_version}, ${installed_version}"
 	if [ "${base_version}" != "${installed_version}" ]
 	then

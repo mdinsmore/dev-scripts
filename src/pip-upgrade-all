@@ -1,6 +1,6 @@
 if [ ! -f requirements/base.txt ]
 then
-	echo "Not base requiremnets file"
+	echo "No base requirements file in the current directory"
 	exit
 fi
 
