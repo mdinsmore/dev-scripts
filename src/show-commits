@@ -12,5 +12,6 @@ do
 	else
 		first=0
 	fi
+	clear
 	git show $i
 done

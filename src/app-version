@@ -61,13 +61,13 @@ do
 
 	if [ "$projVersion" = "$appVersion" ]
 	then
-		echo "App '$package' (version $projVersion) is up to date ($appVersion)"
+		echo "App '$package' (version $projVersion) is up to date"
 	else
 		if [ "$appVersion" = "" ]
 		then
 			echo "App '$package' (version $projVersion) has updates that need to be released"
 		else
-			echo "App '$package' (version $projVersion) is not up to date current version is $appVersion"
+			echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
 		fi
 	fi
 done
