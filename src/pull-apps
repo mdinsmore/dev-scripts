@@ -1,11 +1,29 @@
-cd ~/repo/dev/app
-for i in `ls`
+#! /bin/bash
+APP_DIR=$HOME/repo/dev/app
+
+echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
+
+for app in `ls $APP_DIR`
 do
-	echo "$i"
-	echo "-------------------------------------------------------------"
-	cd $i
-	git pull
-	git status
-	cd ..
-	echo "============================================================="
+    cd $APP_DIR/$app
+	echo -e "\rUpdating $app ...\c"
+    git pull > /tmp/app-pull-$$ 2>&1
+    pull=`cat /tmp/app-pull-$$`
+    if [ "$pull" != "Already up-to-date." ]
+    then
+        echo -e "\r============================================================="
+        echo "$app"
+        echo "-------------------------------------------------------------"
+        cat /tmp/app-pull-$$
+    fi
+    git remote update > /dev/null 2>&1
+    git status > /tmp/app-status-$$
+    branch=`grep "^On branch" /tmp/app-status-$$ | cut -c10-`
+    status=`grep "^Your branch is" /tmp/app-status-$$ | cut -c15-`
+    grep "^Changes" /tmp/app-status-$$ > /tmp/app-status-$$-a
+    grep "^Untracked" /tmp/app-status-$$ >> /tmp/app-status-$$-a
+    changes=`cat /tmp/app-status-$$-a | cut -d: -f1 | sed ':a;N;$!ba;s/\n/ and /g'`
+
+    echo "$app|$branch|$status|$changes" | gawk  -F \| '{ printf "\r%-15.15s %-20.20s %s %s\n", $1, $2, $3, $4 }'
+    rm /tmp/app-pull-$$ /tmp/app-status-$$ /tmp/app-status-$$-a
 done
