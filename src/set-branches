@@ -1,18 +1,39 @@
 APP_BASE_DIR="$HOME/repo/dev/app"
+PROJECT_DIR=`pwd`
+if [ ! -f requirements/branch.txt ]
+then
+	echo -e "\n\nThe file requirements/branch.txt does not exist"
+	exit 2
+fi
 
-for line in `cat requirements/branch.txt`
-do
-	APP=`echo $line | cut -d'|' -f1`
-	BRANCH=`echo $line | cut -d'|' -f2`
-	echo "Setting the app '$APP' to the branch '$BRANCH'"
-	APP_DIR="$APP_BASE_DIR/$APP"
-	cd $APP_DIR
+for APP in `grep "^-e .." requirements/local.txt | cut -c14-`
+do 
+	cd $PROJECT_DIR
+	LINE=`grep "^$APP|" requirements/branch.txt`
 
-	if [ "$APP_DIR" != `pwd` ]
+	if [ "x$LINE" = "x" ]
 	then
-		echo "Could not change to $APP_DIR"
+		echo "The app '$APP' is not specified in requirements/branch.txt"
 	else
-		git checkout $BRANCH
-		git pull
+		APP=`echo $LINE | cut -d'|' -f1`
+		BRANCH=`echo $LINE | cut -d'|' -f2`
+		APP_DIR="$APP_BASE_DIR/$APP"
+		cd $APP_DIR
+
+		if [ "$APP_DIR" != `pwd` ]
+		then
+			echo "Could not change to $APP_DIR"
+		else
+			CURRENT=`git status | grep "^On branch " | cut -c11-`
+			if [ "$CURRENT" != "$BRANCH" ]
+			then
+				echo "Checking out branch '$BRANCH' for the app '$APP'"
+				git checkout $BRANCH
+			else 
+				echo "App '$APP' is already on branch $BRANCH"
+			fi
+
+			git pull
+		fi
 	fi
 done
