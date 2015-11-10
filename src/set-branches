@@ -1,0 +1,18 @@
+APP_BASE_DIR="$HOME/repo/dev/app"
+
+for line in `cat requirements/branch.txt`
+do
+	APP=`echo $line | cut -d'|' -f1`
+	BRANCH=`echo $line | cut -d'|' -f2`
+	echo "Setting the app '$APP' to the branch '$BRANCH'"
+	APP_DIR="$APP_BASE_DIR/$APP"
+	cd $APP_DIR
+
+	if [ "$APP_DIR" != `pwd` ]
+	then
+		echo "Could not change to $APP_DIR"
+	else
+		git checkout $BRANCH
+		git pull
+	fi
+done
