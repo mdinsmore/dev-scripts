@@ -41,6 +41,12 @@ restore-db
 Restore a backup script to a postgres database - requires that a variable
 called CURRENT_PROJECT is set to the name of the project you wish to restore
 
+set-branches
+------------
+Set the branch of all apps used by a project. Reads branch from a file called 
+requirements/branch.txt in project directory.  This file should contain a line
+for each app in the format: app|branch
+
 show-commits
 ------------
 Show the details of the commits for a repository
