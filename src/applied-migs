@@ -1,0 +1,12 @@
+#! /bin/bash
+if [ -z $CURRENT_PROJECT ]
+then
+	echo -e "The environment variable CURRENT_PROJECT is not set"
+	exit
+fi
+
+DATABASE_NAME="test_${CURRENT_PROJECT}_${USER}"
+
+
+psql -X -U postgres -d ${DATABASE_NAME} -c "select app, name, applied from django_migrations order by app, applied;"
+
