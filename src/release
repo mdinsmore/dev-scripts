@@ -1,3 +1,22 @@
-source ~/repo/dev/module/fabric/venv-fabric/bin/activate && \
-fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
-cd .
+app-version
+echo ""
+DO_RELEASE="X"
+
+while [ "${DO_RELEASE,,}" != 'y' -a "${DO_RELEASE,,}" != 'n' ]
+do
+	echo "******************************************************************************"
+	echo "* Ensure that the app versions above are correct and that you have run tests *"
+	echo "******************************************************************************"
+	echo ""
+	echo -e "\nCorrect (y/N) \c"
+	read DO_RELEASE
+done
+
+if [ "${DO_RELEASE,,}" = 'y' ]
+then
+	source ~/repo/dev/module/fabric/venv-fabric/bin/activate && \
+	fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
+	cd .
+else
+	echo "Aborted"
+fi

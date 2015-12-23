@@ -1,19 +1,70 @@
 APP_BASE_DIR="$HOME/repo/dev/app"
 PROJECT_DIR=`pwd`
-if [ ! -f requirements/branch.txt ]
+BRANCH_NAME=`git status| grep "^On branch "| cut -c10-`
+BRANCH_INFO_FILE="requirements/branch.txt"
+BRANCH_YAML_FILE="requirements/branch.yaml"
+
+function parse_yaml_section() {
+   local section=$2
+   local temp_file_name=$3
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+
+   echo "YAML FILE: $1"
+   echo "Section: $section"
+   echo "Temp File Name: ${temp_file_name}"
+
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])}
+         # printf("%s  -  %s\n", vn, "'$section'")
+         if (vn == "'$section'") {
+            printf("%s|%s\n", $2, $3)
+         }
+      }
+   }' > ${temp_file_name}
+}
+
+if [ -f ${BRANCH_YAML_FILE} ]
 then
-	echo -e "\n\nThe file requirements/branch.txt does not exist"
+	SECTION=`echo $BRANCH_NAME | sed -e "s|-||g"`
+	TEMP_FILE=/tmp/branch-$$.txt
+	parse_yaml_section ${BRANCH_YAML_FILE} "${SECTION}" ${TEMP_FILE}
+	
+	echo "Using the '$BRANCH_NAME' section:"
+	if [ -s ${TEMP_FILE} ]
+	then
+		echo "App                  Branch"
+		cat ${TEMP_FILE} | awk -F "|" '{ printf("%-20.20s %s\n", $1, $2) }'
+		
+		BRANCH_INFO_FILE=${TEMP_FILE}
+	fi
+fi
+
+if [ ! -s ${BRANCH_INFO_FILE} ]
+then
+	echo -e "\n\nThe file ${BRANCH_INFO_FILE} does not exist"
 	exit 2
+fi
+
+if [ "${BRANCH_INFO_FILE}" = "requirements/branch.txt" ]
+then
+	echo "USING LEGACY MODE"
 fi
 
 for APP in `grep "^-e .." requirements/local.txt | cut -c14-`
 do 
 	cd $PROJECT_DIR
-	LINE=`grep "^$APP|" requirements/branch.txt`
+	LINE=`grep "^$APP|" ${BRANCH_INFO_FILE}`
 
 	if [ "x$LINE" = "x" ]
 	then
-		echo "The app '$APP' is not specified in requirements/branch.txt"
+		echo "The app '$APP' is not specified in ${BRANCH_INFO_FILE}"
 	else
 		APP=`echo $LINE | cut -d'|' -f1`
 		BRANCH=`echo $LINE | cut -d'|' -f2`
@@ -37,3 +88,9 @@ do
 		fi
 	fi
 done
+
+
+if [ "x${TEMP_FILE}" != "x" -a -f ${TEMP_FILE} ]
+then
+	rm ${TEMP_FILE}
+fi
