@@ -1,3 +1,4 @@
+#!/bin/bash
 APP_BASE_DIR="$HOME/repo/dev/app"
 PROJECT_DIR=`pwd`
 BRANCH_NAME=`git status| grep "^On branch "| cut -c10-`
