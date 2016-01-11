@@ -90,7 +90,7 @@ do
 done
 
 
-if [ "x${TEMP_FILE}" != "x" -a -f ${TEMP_FILE} ]
+if [ "x${TEMP_FILE}" != "x" -a -f "${TEMP_FILE}" ]
 then
 	rm ${TEMP_FILE}
 fi
