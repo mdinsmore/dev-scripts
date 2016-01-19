@@ -53,11 +53,6 @@ then
 	exit 2
 fi
 
-if [ "${BRANCH_INFO_FILE}" = "requirements/branch.txt" ]
-then
-	echo "USING LEGACY MODE"
-fi
-
 for APP in `grep "^-e .." requirements/local.txt | cut -c14-`
 do 
 	cd $PROJECT_DIR
