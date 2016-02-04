@@ -11,7 +11,7 @@ VENV="venv-$1"
 
 pyvenv-3.4 --without-pip $VENV
 source $VENV/bin/activate
-wget https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py
+wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 mv get-pip.py ~/bin/
 pip install -r requirements/local.txt

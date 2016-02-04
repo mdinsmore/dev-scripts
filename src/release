@@ -1,12 +1,47 @@
-app-version
+PROD_REQUIREMENTS="requirements/production.txt"
+if [ -f ${PROD_REQUIREMENTS} ]; then
+	app-version
+fi
 echo ""
+
+package=`tr -d ' ' < setup.py| grep "^name=" | sed -e 's/name=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
+version=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
+if [ "$package" = "" ]; then
+	echo "Cannot identify package - ABORTING"
+	exit 2
+fi
+prefix="${package}-"
+suffix=".tar.gz"
+outfile="/tmp/$package-$$.tmp"
+wget -O ${outfile} https://devpi.kbsoftware.co.uk/kb/dev/+simple/${package} 2> /dev/null
+tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | line | cut -d'>' -f2 | cut -d'<' -f1`
+tmp=${tmp#$prefix}
+released_version=${tmp%$suffix}
+echo "Last released version is : ${released_version}"
+
+if [ "${version}" != "${released_version}" ];then
+	echo "Previous Version is      : ${version}"
+	echo ""
+	echo "*****************************************************************"
+	echo "* Please note the latest released verion is not the same as the *"
+	echo "* last version released from the current source tree            *"
+	echo "*****************************************************************"
+fi
+echo ""
+
 DO_RELEASE="X"
 
 while [ "${DO_RELEASE,,}" != 'y' -a "${DO_RELEASE,,}" != 'n' ]
 do
-	echo "******************************************************************************"
-	echo "* Ensure that the app versions above are correct and that you have run tests *"
-	echo "******************************************************************************"
+	if [ -f ${PROD_REQUIREMENTS} ]; then
+		echo "******************************************************************************"
+		echo "* Ensure that the app versions above are correct and that you have run tests *"
+		echo "******************************************************************************"
+	else
+		echo "*****************************"
+		echo "* Ensure you have run tests *"
+		echo "*****************************"
+	fi
 	echo ""
 	echo -e "\nCorrect (y/N) \c"
 	read DO_RELEASE
