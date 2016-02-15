@@ -40,7 +40,8 @@ for i in `ls $appDir`
 do
 	cd $appDir/$i
 	version=`git log -1 | grep "^    version " | cut -d' ' -f6`
-	echo "$i $version"
+	relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
+	echo "$i $version $relVersion"
 done >> /tmp/version-$$.txt
 
 if [ "$verbose" = "1" ]
@@ -58,6 +59,7 @@ do
 	projVersion=`echo $i | cut -d"=" -f3`
 
 	appVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f2`
+	relVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f3`
 
 	if [ "$projVersion" = "$appVersion" ]
 	then
@@ -65,7 +67,7 @@ do
 	else
 		if [ "$appVersion" = "" ]
 		then
-			echo "App '$package' (version $projVersion) has updates that need to be released"
+			echo "App '$package' (version $projVersion) has updates that need to be released ($relVersion)"
 		else
 			echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
 		fi

@@ -4,7 +4,7 @@ PROJECT_DIR=`pwd`
 BRANCH_NAME=`git status| grep "^On branch "| cut -c10-`
 BRANCH_INFO_FILE="requirements/branch.txt"
 BRANCH_YAML_FILE="requirements/branch.yaml"
-
+git config --global color.ui always
 function parse_yaml_section() {
    local section=$2
    local temp_file_name=$3
@@ -66,21 +66,26 @@ do
 		BRANCH=`echo $LINE | cut -d'|' -f2`
 		APP_DIR="$APP_BASE_DIR/$APP"
 		cd $APP_DIR
-
+		echo -e "\rProcessing ${APP}... \c"
 		if [ "$APP_DIR" != `pwd` ]
 		then
-			echo "Could not change to $APP_DIR"
+			msg="Could not change to $APP_DIR"
 		else
 			CURRENT=`git status | grep "^On branch " | cut -c11-`
 			if [ "$CURRENT" != "$BRANCH" ]
 			then
-				echo "Checking out branch '$BRANCH' for the app '$APP'"
-				git checkout $BRANCH
+				msg="Checking out branch '$BRANCH' for the app '$APP'"
+				GIT_OUT=`git checkout $BRANCH 2>&1`
+				msg="Checked out branch ${BRANCH}\n${GIT_OUT}"
 			else 
-				echo "App '$APP' is already on branch $BRANCH"
+				msg="already on branch $BRANCH"
 			fi
 
-			git pull
+			GIT_OUT=`git pull 2>&1`
+		fi
+		echo -e "\r${APP} : $msg"
+		if [ "${GIT_OUT}" != "Already up-to-date." ]; then
+			echo "${GIT_OUT}"
 		fi
 	fi
 done

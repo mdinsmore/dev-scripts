@@ -1,0 +1,7 @@
+cd ${HOME}/repo/dev/app
+
+for i in `ls`; do
+	cd $i
+	git remote -v | awk '{ print $2 }' | sort -u | awk '{ printf "'${i}': %s\n", $1 }'
+	cd ..
+done

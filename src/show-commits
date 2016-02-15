@@ -1,17 +1,19 @@
-first=1
-for i in `git log | grep commit | cut -d' ' -f2`
-do
-	if [ $first == 0 ]
-	then
-		echo -e "Show next (Y/n) \c"
-		read ok
-		if [ "$ok" == "n" -o "$ok" == "N" ]
-		then
-			exit
-		fi
-	else
-		first=0
-	fi
-	clear
-	git show $i
-done
+git log -p
+
+# first=1
+# for i in `git log | grep commit | cut -d' ' -f2`
+# do
+# 	if [ $first == 0 ]
+# 	then
+# 		echo -e "Show next (Y/n) \c"
+# 		read ok
+# 		if [ "$ok" == "n" -o "$ok" == "N" ]
+# 		then
+# 			exit
+# 		fi
+# 	else
+# 		first=0
+# 	fi
+# 	clear
+# 	git show $i
+# done
