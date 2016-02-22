@@ -8,6 +8,7 @@ Analyse a log for details of users for the site
 app-status
 ----------
 Report the git status django apps (~/repo/dev/app)
+(-v or --verbose displays the remote origin)
 
 app-version
 -----------
