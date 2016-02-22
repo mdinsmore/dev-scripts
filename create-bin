@@ -37,7 +37,7 @@ if $ok_to_update ; then
 			then
 				ln -s `pwd`/src/$script $HOME/bin/
 				# chmod u+x $HOME/bin/$script
-				echo "Added \'$script\' to $HOME/bin/"
+				echo "Added '$script' to $HOME/bin/"
 			else
 				echo "Ignoring $src/$script since it is not executable"
 			fi
