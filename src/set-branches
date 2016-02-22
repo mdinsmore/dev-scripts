@@ -79,7 +79,7 @@ do
 		then
 			msg="${RED}Could not change to '${APP_DIR}'${NC}"
 		else
-			CURRENT=`git status | grep "^On branch " | cut -c11-`
+			CURRENT=`git fetch && git status | grep "^On branch " | cut -c11-`
 			if [ "$CURRENT" != "$BRANCH" ]
 			then
 				echo -e "\rProcessing ${APP} - Checking out branch '$BRANCH' ...\c"

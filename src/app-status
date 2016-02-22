@@ -1,5 +1,8 @@
 #! /bin/bash
 APP_DIR=$HOME/repo/dev/app
+if [ "$1" = "-v" -o "$1" = "--verbose" ];then
+	VERBOSE=true
+fi
 
 for app in `ls $APP_DIR`
 do
@@ -12,6 +15,11 @@ do
     grep "^Untracked" /tmp/app-status-$$ >> /tmp/app-status-$$-a
     changes=`cat /tmp/app-status-$$-a | cut -d: -f1 | sed ':a;N;$!ba;s/\n/ and /g'`
 
-    echo "$app|$branch|$status|$changes" | gawk  -F \| '{ printf "%-15.15s %-20.20s %s %s\n", $1, $2, $3, $4 }'
+    if [ "${VERBOSE}" ];then
+		remote=`git remote -v | grep fetch | cut -d$'\t' -f2 | cut -d' ' -f1`
+		echo "$app|$branch|$status|$changes|$remote" | gawk  -F \| '{ printf "%-15.15s %-20.20s %s %s (%s)\n", $1, $2, $3, $4i, $5 }'
+	else
+		echo "$app|$branch|$status|$changes" | gawk  -F \| '{ printf "%-15.15s %-20.20s %s %s\n", $1, $2, $3, $4 }'
+	fi
 
 done
