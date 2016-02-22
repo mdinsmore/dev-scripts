@@ -1,0 +1,8 @@
+OLD_IFS=${IFS}
+IFS=$'\n'
+for i in `git status --porcelain`
+do
+	FILE=`echo $i | cut -c4-`
+	ls -l ${FILE}| cut -d' ' -f6-
+done | sort -r
+IFS=${OLD_IFS}

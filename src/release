@@ -17,10 +17,10 @@ wget -O ${outfile} https://devpi.kbsoftware.co.uk/kb/dev/+simple/${package} 2> /
 tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | line | cut -d'>' -f2 | cut -d'<' -f1`
 tmp=${tmp#$prefix}
 released_version=${tmp%$suffix}
-echo "Last released version is : ${released_version}"
+echo "Last released version on pydev is : ${released_version}"
 
 if [ "${version}" != "${released_version}" ];then
-	echo "Previous Version is      : ${version}"
+	echo "Previous Version on this branch   : ${version}"
 	echo ""
 	echo "*****************************************************************"
 	echo "* Please note the latest released verion is not the same as the *"

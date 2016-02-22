@@ -4,6 +4,9 @@ PROJECT_DIR=`pwd`
 BRANCH_NAME=`git status| grep "^On branch "| cut -c10-`
 BRANCH_INFO_FILE="requirements/branch.txt"
 BRANCH_YAML_FILE="requirements/branch.yaml"
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
 git config --global color.ui always
 function parse_yaml_section() {
    local section=$2
@@ -53,6 +56,8 @@ then
 	exit 2
 fi
 
+PREV_UP_TO_DATE=true
+
 for APP in `grep "^-e .." requirements/local.txt | cut -c14-`
 do 
 	cd $PROJECT_DIR
@@ -65,27 +70,47 @@ do
 		APP=`echo $LINE | cut -d'|' -f1`
 		BRANCH=`echo $LINE | cut -d'|' -f2`
 		APP_DIR="$APP_BASE_DIR/$APP"
+		GIT_OUT=""
 		cd $APP_DIR
 		echo -e "\rProcessing ${APP}... \c"
+		BRANCH_SWITCHED=false
+
 		if [ "$APP_DIR" != `pwd` ]
 		then
-			msg="Could not change to $APP_DIR"
+			msg="${RED}Could not change to '${APP_DIR}'${NC}"
 		else
 			CURRENT=`git status | grep "^On branch " | cut -c11-`
 			if [ "$CURRENT" != "$BRANCH" ]
 			then
-				msg="Checking out branch '$BRANCH' for the app '$APP'"
+				echo -e "\rProcessing ${APP} - Checking out branch '$BRANCH' ...\c"
 				GIT_OUT=`git checkout $BRANCH 2>&1`
-				msg="Checked out branch ${BRANCH}\n${GIT_OUT}"
+				BRANCH_SWITCHED=true
+				msg="${GREEN}Checked out branch '${BRANCH}${NC}'\n${GIT_OUT}"
 			else 
-				msg="already on branch $BRANCH"
+				msg="already on branch '${BRANCH}'"
 			fi
-
 			GIT_OUT=`git pull 2>&1`
 		fi
+		if [ "${GIT_OUT}" = "Already up-to-date." ]; then
+			CURR_UP_TO_DATE=true
+			if [ ${BRANCH_SWITCHED} = false ];then
+				msg="${msg} and up to date"
+			fi
+		else
+			CURR_UP_TO_DATE=false
+		fi
+		if [ ${BRANCH_SWITCHED} = true -o \( ${PREV_UP_TO_DATE} = false -a ${CURR_UP_TO_DATE} = true \) ];then
+			echo -e "\r============================================================="
+		fi
 		echo -e "\r${APP} : $msg"
-		if [ "${GIT_OUT}" != "Already up-to-date." ]; then
+		if [ ! ${CURR_UP_TO_DATE} ]; then
 			echo "${GIT_OUT}"
+		fi
+
+		PREV_UP_TO_DATE=${CURR_UP_TO_DATE}
+
+		if [ ${BRANCH_SWITCHED} = true ]; then
+			PREV_UP_TO_DATE=false
 		fi
 	fi
 done
