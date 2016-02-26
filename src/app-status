@@ -1,5 +1,6 @@
 #! /bin/bash
 APP_DIR=$HOME/repo/dev/app
+
 if [ "$1" = "-v" -o "$1" = "--verbose" ];then
 	VERBOSE=true
 fi

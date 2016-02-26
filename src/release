@@ -51,7 +51,7 @@ if [ "${DO_RELEASE,,}" = 'y' ]
 then
 	source ~/repo/dev/module/fabric/venv-fabric/bin/activate && \
 	fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
-	cd .
+	cd . && git push
 else
 	echo "Aborted"
 fi
