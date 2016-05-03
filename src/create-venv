@@ -7,7 +7,9 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-deactivate
+if [ "`which deactivate`" != "" ];then
+	deactivate
+fi
 
 VENV="venv-$1"
 
@@ -52,9 +54,9 @@ echo ".env does not exist"
 # EOF
 fi
 
-virtualenv --python=python3.4 ${VENV}
-source ${VENV}/bin/activate
-pip install --upgrade pip
+virtualenv --python=python3 ${VENV} && \
+source ${VENV}/bin/activate && \
+pip install --upgrade pip && \
 pip install -r requirements/local.txt
 
 echo -e "\n*************************************************"
