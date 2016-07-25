@@ -1,0 +1,55 @@
+if [ "$1" = "" -o "$2" = "" ]
+then
+	echo -e "Usage: \n\t`basename $0` <host> <public key file>\n"
+	echo -e "where:"
+	echo -e "\t<host> is the host you which to configure ssh access to"
+	echo -e "\t<public key file> is the name of the file containing" \
+			"the public key \n\t\tof the client computer"
+	echo -e "\nThe public key can normally be generated using the" \
+			"command"
+	echo -e "\n\tsudo keygen -t rsa"
+	echo -e "\nand accepting the defaults" \
+			"- see the keygen man page for more details\n"
+	exit
+fi
+
+THIS_HOST=`hostname`
+USER=`who am i | awk '{ print $1 }'`
+THIS_USER="$USER@$THIS_HOST"
+
+echo -e "Configuring ssh on '$1' for $THIS_USER"
+echo -e "--------------------------------------------------"
+echo -e "This requires three remote actions and may require you to" \
+	"\nenter your password on the remote computer three times\n"
+
+TMP_DIR="/tmp"
+TMP_SCRIPT="${TMP_DIR}/script-$$"
+
+CONFIG_HOST=$1
+PUBLIC_KEY_PATH=$2
+PUBLIC_KEY_REMOTE="${TMP_DIR}/`basename $2`"
+
+echo -e "mkdir -p .ssh" > ${TMP_SCRIPT}
+echo -e "cd .ssh\nADD_KEY=YES\n" >> ${TMP_SCRIPT}
+echo -e "if [ -f authorized_keys ]\nthen" >> ${TMP_SCRIPT}
+echo -e "grep \"$THIS_USER\" authorized_keys > .tmp_$$" >> ${TMP_SCRIPT}
+echo -e "diffs=\"\`diff $PUBLIC_KEY_REMOTE .tmp_$$\`\"" >> ${TMP_SCRIPT}
+echo -e "if [ \"\$diffs\" = \"\" ]\nthen" >> ${TMP_SCRIPT}
+echo -e "echo \"\n\t\t**************************\"" >> ${TMP_SCRIPT}
+echo -e "echo \"\t\t* SSH already configured *\"" >> ${TMP_SCRIPT}
+echo -e "echo \"\t\t**************************\n\"" >> ${TMP_SCRIPT}
+echo -e "ADD_KEY=NO" >> ${TMP_SCRIPT}
+echo -e "fi" >> ${TMP_SCRIPT}
+echo -e "rm .tmp_$$" >> ${TMP_SCRIPT}
+echo -e "fi" >> ${TMP_SCRIPT}
+echo -e "if [ \"\$ADD_KEY\" = \"YES\" ]\nthen" >> ${TMP_SCRIPT}
+echo -e "cat $PUBLIC_KEY_REMOTE >> authorized_keys" >> ${TMP_SCRIPT}
+echo -e "fi" >> ${TMP_SCRIPT}
+
+scp $PUBLIC_KEY_PATH ${TMP_SCRIPT} $CONFIG_HOST:${TMP_DIR}
+
+ssh $CONFIG_HOST "sh ${TMP_SCRIPT}; rm ${TMP_SCRIPT} $PUBLIC_KEY_REMOTE"
+
+rm ${TMP_SCRIPT}
+
+

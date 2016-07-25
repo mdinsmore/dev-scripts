@@ -1,4 +1,7 @@
-if [ ! -f requirements/base.txt ]
+REQUIREMENTS_FILE=requirements/base.txt
+# REQUIREMENTS_FILE=requirements.txt
+
+if [ ! -f ${REQUIREMENTS_FILE} ]
 then
 	echo "No base requirements file in the current directory"
 	exit
@@ -20,7 +23,7 @@ print ""        "Base"    "Installed"
 print "Package" "Version" "Version"
 print "-------" "-------" "---------"
 
-for line in `cat requirements/base.txt`
+for line in `cat ${REQUIREMENTS_FILE}`
 do
 	pkg=`echo ${line} | cut -d= -f1`
 	base_version=`echo ${line} | cut -d= -f3`

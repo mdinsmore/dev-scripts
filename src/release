@@ -14,7 +14,7 @@ prefix="${package}-"
 suffix=".tar.gz"
 outfile="/tmp/$package-$$.tmp"
 wget -O ${outfile} https://devpi.kbsoftware.co.uk/kb/dev/+simple/${package} 2> /dev/null
-tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | line | cut -d'>' -f2 | cut -d'<' -f1`
+tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
 tmp=${tmp#$prefix}
 released_version=${tmp%$suffix}
 echo "Last released version on pydev is : ${released_version}"
