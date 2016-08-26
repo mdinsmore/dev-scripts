@@ -37,6 +37,10 @@ release
 -------
 Release an app or project to our pypi - requires pkimber/fabric
 
+requirements
+------------
+check a virtual environment pip requirements file against a reference file
+
 restore-db
 ----------
 Restore a backup script to a postgres database - requires that a variable

@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# allow different development directory
+# Assume the docs directory is module/docs within the development directory
+#
+if [ "${DEVELOPMENT_DIRECTORY}" == "" ];then
+	DEVELOPMENT_DIRECTORY="$HOME/repo/dev/"
+else
+	idx=$((${#DEVELOPMENT_DIRECTORY}-1))
+	if [ "${DEVELOPMENT_DIRECTORY:$idx:1}" != "/" ];then
+		DEVELOPMENT_DIRECTORY="${DEVELOPMENT_DIRECTORY}/"
+	fi
+fi
+
+if [ "${REQUIREMENTS_REFERENCE}" == "" ];then
+	REQUIREMENTS_REFERENCE="${DEVELOPMENT_DIRECTORY}module/docs/source/dev-requirements.rst"
+fi
+
+if [ "${REQUIREMENTS_FILE}" == "" ];then
+	REQUIREMENTS_FILE="requirements/base.txt"
+fi
+
+if [ ! -f  "${REQUIREMENTS_REFERENCE}" ]; then
+	echo -e "\nReference file '${REQUIREMENTS_REFERENCE}' does not exist\n"
+	exit 2
+fi
+
+if [ ! -f  "${REQUIREMENTS_FILE}" ]; then
+	echo -e "\nRequirements file '${REQUIREMENTS_FILE}' does not exist\n"
+	exit 2
+fi
+
+function print_line() {
+	echo "$1|$2|$3" | awk -F\| '{ printf "%-20.20s %15.15s %20.20s\n", $1, $2, $3 }'
+}
+
+echo ""
+print_line "Package" "Current Version" "Reference Version"
+print_line "-------" "---------------" "-----------------"
+
+for REQ in `grep == ${REQUIREMENTS_FILE}`; do
+	CURR_PACKAGE=`echo ${REQ} | cut -d'=' -f1`
+	CURR_VERSION=`echo ${REQ} | cut -d'=' -f3`
+
+	REF=`grep "^  ${CURR_PACKAGE}==" ${REQUIREMENTS_REFERENCE}`
+	REF_PACKAGE=`echo ${REF} | cut -d'=' -f1`
+	REF_VERSION=`echo ${REF} | cut -d'=' -f3`
+
+	if [ ${CURR_VERSION} != ${REF_VERSION} ];then
+		REF_VERSION_TEXT=${REF_VERSION}
+		# echo "${CURR_PACKAGE} (${CURR_VERSION}) is not up to date ${REF_VERSION} "
+	else
+		REF_VERSION_TEXT="up to date"
+	fi
+	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}"
+done

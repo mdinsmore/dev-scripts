@@ -54,10 +54,15 @@ echo ".env does not exist"
 # EOF
 fi
 
+REQUIREMENTS=requirements/local.txt
+if [ ! -f requirements/local.txt -a -f requirements.txt ]; then
+		REQUIREMENTS=requirements.txt
+fi
+
 virtualenv --python=python3 ${VENV} && \
 source ${VENV}/bin/activate && \
 pip install --upgrade pip && \
-pip install -r requirements/local.txt
+pip install -r ${REQUIREMENTS}
 
 echo -e "\n*************************************************"
 echo -e   "* Now run cd . to activate your new environment *"
