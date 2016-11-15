@@ -46,7 +46,7 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	REF_PACKAGE=`echo ${REF} | cut -d'=' -f1`
 	REF_VERSION=`echo ${REF} | cut -d'=' -f3`
 
-	if [ ${CURR_VERSION} != ${REF_VERSION} ];then
+	if [ "${CURR_VERSION}" != "${REF_VERSION}" ];then
 		REF_VERSION_TEXT=${REF_VERSION}
 		# echo "${CURR_PACKAGE} (${CURR_VERSION}) is not up to date ${REF_VERSION} "
 	else
