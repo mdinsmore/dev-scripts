@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import os
+import os.path
+import sys
+import time
+import subprocess
+from datetime import datetime
+
+
+def display_timer(last_change):
+    time_diff = datetime.now() - last_change
+    secs = time_diff.days * 86400 + time_diff.seconds
+    if secs < 60:
+        time = "{} seconds".format(int(secs))
+    elif secs < 3600:
+        time = "{} minutes {} seconds".format(int(secs / 60), int(secs % 60))
+    else:
+        time = "{} hours {} minutes {} seconds".format(
+            int(secs / 3600), int(secs / 60), int(secs % 60)
+        )
+    sys.stdout.write("\rNo Change for {}".format(time))
+
+
+def directory_dict(directory):
+    files = {}
+    for file in os.listdir(directory):
+        fstat = os.stat(os.path.join(directory, file))
+        files.update({file: fstat.st_mtime})
+    return files
+
+
+def watch_directory(directory, process_on_change):
+    last_change = datetime.now()
+    before = directory_dict(directory)
+    while 1:
+        display_timer(last_change)
+        after = directory_dict(directory)
+        # added = [f for f in after if f not in before]
+        removed = [f for f in before if f not in after]
+        updated = []
+        added = []
+        for (f_name, f_mod) in after.items():
+            prev_mod = before.get(f_name, None)
+            if not prev_mod:
+                added.append(f_name)
+            else:
+                if f_mod != prev_mod:
+                    updated.append(f_name)
+        if added:
+            sys.stdout.write("\nAdded: {}\n".format(", ".join(added)))
+        if updated:
+            sys.stdout.write("\nUpdated: {}\n".format(", ".join(updated)))
+        if removed:
+            sys.stdout.write("\nRemoved: {}\n".format(", ".join(removed)))
+
+        if added or removed or updated:
+            subprocess.run(process_on_change.split(" "))
+            last_change = datetime.now()
+        before = after
+        try:
+            time.sleep(2)
+        except KeyboardInterrupt:
+            sys.stdout.write("\r")
+            break
+
+
+if len(sys.argv) < 3:
+    sys.stdout.write(
+        "\nUsage:\n\t {} <directory to watch> <process to run>\n".format(
+            os.path.basename(sys.argv[0])
+        )
+    )
+else:
+    if os.path.isdir(sys.argv[1]):
+        watch_directory(directory=sys.argv[1], process_on_change=sys.argv[2])
+    else:
+        sys.stdout.write("Directory '{}' does not exist\n".format(sys.argv[0]))

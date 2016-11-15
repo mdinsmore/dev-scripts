@@ -1,0 +1,45 @@
+if [ ! -f .env ]; then 
+	echo "Creating .env"
+	touch .env
+	echo "#find the virtual environment in the current directory" >> .env
+	echo "VE=\`ls -d venv-* 2>/dev/null | line\`" >> .env
+	echo "" >> .env
+	echo "if [ \`echo \"\$VE\" | wc -w\` -eq 1 ]; then" >> .env
+	echo "    if [ \"\$VE_VERBOSE\" = \"TRUE\" ]; then" >> .env
+	echo "        echo \"************************************************************************\"" >> .env
+	echo "        echo \"*** Activating \$VE virtual environment \"" >> .env
+	echo "        echo \"************************************************************************\"" >> .env
+	echo "    fi" >> .env
+	echo "    # activate virtual environment" >> .env
+	echo "    source \$VE/bin/activate" >> .env
+	echo "" >> .env
+	echo "    # Set environment variables for this VE" >> .env
+	echo "    # export DJANGO_SETTINGS_MODULE=\"settings.dev_\`id -nu\`\"" >> .env
+	echo "    source .private" >> .env
+	echo "fi" >> .env
+else
+	echo ".env already exists"
+fi
+
+if [ ! -f .private ]; then
+	echo "Creating .private"
+	touch .private
+	echo "    # To configure sparkpost and ensure mandril not configured" >> .private
+	echo "    # export SPARKPOST_API_KEY=\"your api key\"" >> .private
+	echo "    # unset MANDRILL_API_KEY" >> .private
+	echo "    # unset MANDRILL_USER_NAME" >> .private
+	echo "    # To configure mandrill and ensure sparkpost not configured" >> .private
+	echo "    # export MANDRILL_API_KEY=\"your api key\"" >> .private
+	echo "    # export MANDRILL_USER_NAME=\"your mandrill user name\"" >> .private
+	echo "    # unset SPARKPOST_API_KEY" >> .private
+	echo "    # export NORECAPTCHA_SECRET_KEY=\"your secret key\"" >> .private
+	echo "    # export NORECAPTCHA_SITE_KEY=\"your site key\"" >> .private
+	echo "    # export OPBEAT_APP_ID=\"app-id\"" >> .private
+	echo "    # export OPBEAT_ORGANIZATION_ID=\"organization-id\"" >> .private
+	echo "    # export OPBEAT_SECRET_TOKEN=\"secret-token\"" >> .private
+	echo "    # export SECRET_KEY=\"the_secret_key\"" >> .private
+	echo "    # export STRIPE_PUBLISH_KEY=\"your_stripe_publish_key\"" >> .private
+	echo "    # export STRIPE_SECRET_KEY=\"your_stripe_secret_key\"" >> .private
+else
+	echo ".private already exists"
+fi

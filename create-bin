@@ -26,7 +26,7 @@ else
 		for script in `ls src`; do
 			if [ -x $HOME/bin/$script ]
 			then
-				echo "Script $src/$script already in $HOME/bin"
+				echo "Script src/$script already in $HOME/bin"
 			fi
 		done
 	else
@@ -44,7 +44,7 @@ fi
 if $OK_TO_UPDATE ; then
 	if [ ! -d $HOME/bin ]
 	then
-		echo "ln -s `pwd`/$script $HOME/bin/"
+		mkdir $HOME/bin/
 		echo "Created $HOME/bin - add this directory to your PATH enviroment variable  in .bashrc"
 	fi
 
@@ -57,10 +57,10 @@ if $OK_TO_UPDATE ; then
 				# chmod u+x $HOME/bin/$script
 				echo "Added '$script' to $HOME/bin/"
 			else
-				echo "Ignoring $src/$script since it is not executable"
+				echo "Ignoring src/$script since it is not executable"
 			fi
 		else
-			echo "Script $src/$script already in $HOME/bin"
+			echo "Script src/$script already in $HOME/bin"
 		fi
 	done
 fi
