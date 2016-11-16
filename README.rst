@@ -1,5 +1,35 @@
 Scripts to manage my development process
-========================================
+****************************************
+
+Some scripts to aid the development process mostly for development
+using python and django on Linux.  They assume you have a directory
+structure as follows
+
+  ~
+  |
+  +-- bin  # program and scripts directory 
+  |
+  +-- dev
+       |
+       +-- app   # directory for django apps
+       |
+       +-- module  # directory for documentation, deployment info etc
+       |
+       +-- project  # django projects directory
+
+Installation
+============
+
+To use simply clone this repository and then change to the dev-scripts
+directory type::
+
+  ./create-bin
+
+This will create a directory called ~/bin/ if it does not already exist.
+You should add this directory to your PATH.
+
+Scripts provided
+================
 
 analyse-log
 -----------
@@ -7,7 +37,7 @@ Analyse a log for details of users for the site
 
 app-status
 ----------
-Report the git status django apps (~/repo/dev/app)
+Report the git status django apps (~/dev/app)
 (-v or --verbose displays the remote origin)
 
 app-version
@@ -60,3 +90,14 @@ sshrm
 -----
 Remove a host from the list of known hosts
 
+watch-folder
+------------
+
+watch a folder an perform an action if there's a change.  This is a python
+script required python3
+
+watch-docs
+----------
+
+Uses watch-folder and to monitor a sphinx documentation directory and 
+build the html if there's a change.

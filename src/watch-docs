@@ -1,0 +1,11 @@
+DOCS_DIRECTORY=$HOME/dev/module/docs
+
+cd ${DOCS_DIRECTORY}
+if [ `pwd` != ${DOCS_DIRECTORY} ];then
+	echo "\n*** Could not change to '$DOCS_DIRECTORY' ***\n"
+	exit 2
+fi
+
+source venv-sphinx/bin/activate
+
+watch-folder "source" "make html"
