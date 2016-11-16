@@ -1,5 +1,5 @@
 #!/bin/bash
-APP_BASE_DIR="$HOME/repo/dev/app"
+APP_BASE_DIR="$HOME/dev/app"
 PROJECT_DIR=`pwd`
 BRANCH_NAME=`git status| grep "^On branch "| cut -c10-`
 BRANCH_INFO_FILE="requirements/branch.txt"

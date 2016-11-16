@@ -4,7 +4,7 @@
 # Assume the docs directory is module/docs within the development directory
 #
 if [ "${DEVELOPMENT_DIRECTORY}" == "" ];then
-	DEVELOPMENT_DIRECTORY="$HOME/repo/dev/"
+	DEVELOPMENT_DIRECTORY="$HOME/dev/"
 else
 	idx=$((${#DEVELOPMENT_DIRECTORY}-1))
 	if [ "${DEVELOPMENT_DIRECTORY:$idx:1}" != "/" ];then

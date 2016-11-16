@@ -1,5 +1,5 @@
 #! /bin/bash
-APP_DIR=$HOME/repo/dev/app
+APP_DIR=$HOME/dev/app
 
 echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
 

@@ -1,4 +1,4 @@
-cd ${HOME}/repo/dev/app
+cd ${HOME}/dev/app
 
 for i in `ls`; do
 	cd $i

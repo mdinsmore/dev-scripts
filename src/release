@@ -49,7 +49,7 @@ done
 
 if [ "${DO_RELEASE,,}" = 'y' ]
 then
-	source ~/repo/dev/module/fabric/venv-fabric/bin/activate && \
+	source $HOME/dev/module/fabric/venv-fabric/bin/activate && \
 	fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
 	cd . && git push
 else
