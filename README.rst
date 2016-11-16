@@ -1,9 +1,9 @@
 Scripts to manage my development process
-****************************************
+========================================
 
 Some scripts to aid the development process mostly for development
 using python and django on Linux.  They assume you have a directory
-structure as follows
+structure as follows::
 
   ~
   |
