@@ -1,0 +1,4 @@
+#!/bin/bash
+cd $HOME/dev/module/fabric
+source .env
+fab $@

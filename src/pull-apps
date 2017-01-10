@@ -1,12 +1,17 @@
 #! /bin/bash
 APP_DIR=$HOME/dev/app
 
+if [ "$1" != "" ]; then
+    APP_LIST=$1
+else
+    APP_LIST=$(ls ${APP_DIR})
+fi
+
 echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
 
-for app in `ls $APP_DIR`
-do
+for app in ${APP_LIST}; do
     cd $APP_DIR/$app
-	echo -e "\rUpdating $app ...\c"
+    echo -e "\rUpdating $app ...\c"
     git pull > /tmp/app-pull-$$ 2>&1
     pull=`cat /tmp/app-pull-$$`
     if [ "$pull" != "Already up-to-date." ]
