@@ -76,6 +76,11 @@ restore-db
 Restore a backup script to a postgres database - requires that a variable
 called CURRENT_PROJECT is set to the name of the project you wish to restore
 
+restore-files
+-------------
+Restore a files backup to the media (and if it exists media-private)
+directory of the specified project directory
+
 set-branches
 ------------
 Set the branch of all apps used by a project. Reads branch from a file called 
