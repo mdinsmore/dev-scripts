@@ -1,0 +1,38 @@
+if [ "$1" = "" ];then
+    echo -e "Usage:\n\t$(basename $0) <project directory>\n"
+    exit 1
+fi
+
+PROJ_DIR="$1"
+
+if [ ${PROJ_DIR: -1} = "/" ];then
+    PROJ_DIR=${PROJ_DIR:: -1}
+fi
+
+if [ ! -d ${PROJ_DIR}/media ];then
+    echo -e "\nProject ${PROJ_DIR} does not have a media directory\n"
+    exit 2
+fi
+
+if [ ! -d public -o ! -d private ]; then
+    echo -e "\nCurrent directory does not contain a public and private directories so cannot restore\n"
+    exit 2
+fi
+
+echo "Moving public files..."
+mv ${PROJ_DIR}/media .
+mv public ${PROJ_DIR}/media
+
+
+
+
+if [ -d ${PROJ_DIR}/media-private ];then
+    echo "Moving private files..."
+    mv ${PROJ_DIR}/media-private .
+    mv private ${PROJ_DIR}/media-private
+else
+    echo -e "\nProject does not have a media-private directory ignoring the private directory\n"
+fi
+
+echo "Done"
+exit 0
