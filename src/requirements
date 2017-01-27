@@ -70,4 +70,6 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}"
 done
 
-app-version
+if [ -f 'requirements/production.txt' ];then
+	app-version
+fi

@@ -1,10 +1,12 @@
 #! /bin/bash
 
-if [ "$2" != "" ];then
+if [ "$2" != "" -a "$2" != "-" ];then
 	CUR_PROJ=$2
 else
 	if [ -z "${CURRENT_PROJECT}" ]; then
 		echo -e "The environment variable CURRENT_PROJECT is not set"
+		echo -e "Either set the environment variable"
+		echo -e "or pass the current project as the second parameter\n"
 		exit
 	fi
 	CUR_PROJ=${CURRENT_PROJECT}
@@ -12,9 +14,22 @@ fi
 
 
 BACKUP_PATH=/home/${USER}/repo/backup/postgres
-DATABASE_NAME="dev_${CUR_PROJ}_${USER}"
+
+if [ "$3" != "" -a "$3" != "-" ];then
+	DATABASE_NAME=$3
+else
+	DATABASE_NAME="dev_${CUR_PROJ}_${USER}"
+fi
+
+if [ "$4" != "" -a "$4" != "-" ];then
+	NEW_ROLE=$4
+else
+	NEW_ROLE="${USER}"
+fi
+
 if [ "$1" = "" ]; then
-	echo -e "Usage:\n\t$0 <restore file name>\n"
+	echo -e "Usage:\n\t$0 <restore file> [project] [database name] [role]\n"
+	echo -e "to skip an optional parameter insert '-'\n"
 	exit
 fi
 
@@ -40,5 +55,5 @@ psql -X -U postgres -c "CREATE ROLE ${CUR_PROJ};"
 
 psql -X --set ON_ERROR_STOP=on -U postgres -d ${DATABASE_NAME} --file ${FILE_PATH}
 
-psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY ${CUR_PROJ} TO ${USER}"
-psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY www_${CUR_PROJ} TO ${USER}"
+psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY ${CUR_PROJ} TO ${NEW_ROLE}"
+psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY www_${CUR_PROJ} TO ${NEW_ROLE}"
