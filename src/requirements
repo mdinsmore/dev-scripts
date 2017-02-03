@@ -46,7 +46,7 @@ if [ ! -f  "${REQUIREMENTS_FILE}" ]; then
 fi
 
 function print_line() {
-	echo "$1|$2|$3" | awk -F\| '{ printf "%-20.20s %15.15s %20.20s\n", $1, $2, $3 }'
+	echo "$1|$2|$3" | awk -F\| '{ printf "%-20.20s %15.15s    %-20.20s\n", $1, $2, $3 }'
 }
 
 echo ""
@@ -70,6 +70,10 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}"
 done
 
+echo ""
+
 if [ -f 'requirements/production.txt' ];then
+	echo "App Versions"
+	echo "------------"
 	app-version
 fi
