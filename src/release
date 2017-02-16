@@ -1,7 +1,5 @@
 PROD_REQUIREMENTS="requirements/production.txt"
-if [ -f ${PROD_REQUIREMENTS} ]; then
-	app-version
-fi
+requirements -p
 echo ""
 
 package=`tr -d ' ' < setup.py| grep "^name=" | sed -e 's/name=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`

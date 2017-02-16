@@ -70,8 +70,8 @@ do
 	else
 		if [ "$appVersion" = "" ]
 		then
-			print_line $package $projVersion "has updates that need to be released ($relVersion)"
-			# echo "App '$package' (version $projVersion) has updates that need to be released ($relVersion)"
+			print_line $package $projVersion "has unreleased updates ($relVersion)"
+			# echo "App '$package' (version $projVersion) has unreleased updates ($relVersion)"
 		else
 			print_line $package $projVersion "New Version: $appVersion"
 			# echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
