@@ -1,9 +1,28 @@
-if [ "$1" = "" ];then
-    echo -e "Usage:\n\t$(basename $0) <project directory>\n"
+if [ "$1" = "" -o "$2" = "" ];then
+    invalid_parameters="Yes"
+else
+	if [ ! -d $1 ]; then
+		invalid_parameters="Yes"
+		echo -e "\n\"$1\" DOES NOT EXIST"
+	fi
+	if [ ! -d $2 ]; then
+		if [ "$invalid_parameters" = "" ]; then
+			echo ""
+		fi
+		invalid_parameters="Yes"
+		echo -e "\"$2\" DOES NOT EXIST"
+	fi
+fi
+
+if [ "$invalid_parameters" != ""  ];then
+    echo -e "\nUsage:\n\t$(basename $0) <source-directory> <project directory>\n"
     exit 1
 fi
 
-PROJ_DIR="$1"
+# change to the source directory
+cd $1
+
+PROJ_DIR="$2"
 
 if [ ${PROJ_DIR: -1} = "/" ];then
     PROJ_DIR=${PROJ_DIR:: -1}

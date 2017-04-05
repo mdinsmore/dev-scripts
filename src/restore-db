@@ -28,8 +28,17 @@ else
 fi
 
 if [ "$1" = "" ]; then
-	echo -e "Usage:\n\t$0 <restore file> [project] [database name] [role]\n"
-	echo -e "to skip an optional parameter insert '-'\n"
+	tabs 4
+	echo -e "\nUsage:\n\t$(basename $0) <restore file> [project] [database name] [role]\n"
+	echo -e "\t\t- If <restore file> does not exist relative to the current directory"
+	echo -e "\t\t  the directory /home/${USER}/repo/backup/postgres is searched\n"
+	echo -e "\t\t- If project is not defined the value from the environment"
+	echo -e "\t\t  variable CURRENT_PROJECT is used (this is usually the domain with dots"
+	echo -e "\t\t  replaced with underscores)\n"
+	echo -e "\t\t- If database is not defined the database name"
+	echo -e "\t\t  dev_<project>_${USER} is used\n"
+	echo -e "\t\t- If role is not defined the current user '${USER}' is used\n"
+	echo -e "\t\t- to skip an optional parameter insert '-'\n"
 	exit
 fi
 
