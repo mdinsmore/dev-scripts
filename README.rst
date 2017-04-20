@@ -40,6 +40,10 @@ app-status
 Report the git status django apps (~/dev/app)
 (-v or --verbose displays the remote origin)
 
+app-venvs
+---------
+Recreate the virtual environments for all apps
+
 app-version
 -----------
 Read the version number (from the git log) of django apps and compare with 
@@ -59,9 +63,17 @@ pip-update-all
 Update the current virtual environment to the latest versions regardless of 
 the version in specified in requirements files
 
+project-venvs
+---------
+Recreate the virtual environments for all projects
+
 pull-apps
 ---------
 Pull the latest version of django apps from the remote repository
+
+recreate-venv
+---------
+Recreate the virtual environment for the current directory
 
 release
 -------

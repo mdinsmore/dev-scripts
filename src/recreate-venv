@@ -1,0 +1,12 @@
+VE=$(ls -d venv-* 2> /dev/null)
+if [ "${VE}" == "" ]; then 
+	echo -e "\nNo virtual environment found use create-venv to create one\n"
+	exit
+fi
+
+SUFFIX="$(echo ${VE}|cut -d- -f2)"
+
+echo "Recreating ${VE}"
+
+rm -rf ${VE}
+create-venv ${SUFFIX}

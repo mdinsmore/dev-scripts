@@ -1,0 +1,9 @@
+cd ~/dev/project
+for i in $(ls); do
+	if [ -d "$i" ];then
+		echo "Project: $i"
+		cd "$i"
+		recreate-venv
+		cd ..
+	fi
+done

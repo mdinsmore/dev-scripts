@@ -1,0 +1,9 @@
+cd ~/dev/app
+for i in $(ls); do
+	if [ -d "$i" ];then
+		echo "App: $i"
+		cd "$i"
+		recreate-venv
+		cd ..
+	fi
+done
