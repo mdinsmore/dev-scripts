@@ -17,7 +17,7 @@ for i in `ls`; do
 		if [ -d .git ];then
 			git remote -v | awk '{ print $2 }' | sort -u | awk '{ printf "'${i}': %s\n", $1 }'
 		else
-			echo "${i} is not have a git repository"
+			echo "${i} does not have a git repository"
 		fi
 		cd ..
 	else
