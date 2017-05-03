@@ -45,17 +45,22 @@ if [ ! -f  "${REQUIREMENTS_FILE}" ]; then
 	exit 2
 fi
 
+FLAG=$(echo -e "\xe2\x9a\x91")
+
 function print_line() {
-	echo "$1|$2|$3" | awk -F\| '{ printf "%-20.20s %15.15s    %-20.20s\n", $1, $2, $3 }'
+	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-20.20s %15.15s    %-20.20s %s\n", $1, $2, $3, $4 }'
 }
 
 echo ""
-print_line "Package" "Current Version" "Reference Version"
-print_line "-------" "---------------" "-----------------"
+print_line "Package" "Current Version" "Reference Version" "Installed"
+print_line "-------" "---------------" "-----------------" "---------"
+
+pip freeze > /tmp/pip$$
 
 for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	CURR_PACKAGE=`echo ${REQ} | cut -d'=' -f1`
 	CURR_VERSION=`echo ${REQ} | cut -d'=' -f3`
+	INST_VERSION=`grep "^$CURR_PACKAGE==" /tmp/pip$$ | cut -d'=' -f3`
 
 	REF=`grep "^  ${CURR_PACKAGE}==" ${REQUIREMENTS_REFERENCE}`
 	REF_PACKAGE=`echo ${REF} | cut -d'=' -f1`
@@ -67,7 +72,13 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	else
 		REF_VERSION_TEXT="up to date"
 	fi
-	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}"
+
+	if [ "${CURR_VERSION}" != "${INST_VERSION}" ];then
+		INST_VERSION_TEXT=${INST_VERSION}
+	else
+		INST_VERSION_TEXT=${FLAG}
+	fi
+	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}" "${INST_VERSION_TEXT}"
 done
 
 echo ""

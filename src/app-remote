@@ -1,7 +1,26 @@
-cd ${HOME}/dev/app
+if [ "$1" = "" ];then
+	DIR=${HOME}/dev/app
+else
+	DIR=$1
+fi
+	
+cd ${DIR}
+
+if [ $(pwd) != ${DIR} ];then
+	echo "could not change directory to ${DIR}"
+	exit
+fi
 
 for i in `ls`; do
-	cd $i
-	git remote -v | awk '{ print $2 }' | sort -u | awk '{ printf "'${i}': %s\n", $1 }'
-	cd ..
+	if [ -d ${i} ];then
+		cd ${i}
+		if [ -d .git ];then
+			git remote -v | awk '{ print $2 }' | sort -u | awk '{ printf "'${i}': %s\n", $1 }'
+		else
+			echo "${i} is not have a git repository"
+		fi
+		cd ..
+	else
+		echo "${i} is not a directory"
+	fi
 done
