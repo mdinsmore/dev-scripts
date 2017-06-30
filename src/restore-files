@@ -1,36 +1,32 @@
+#! /bin/bash
+
 if [ "$1" = "" -o "$2" = "" ];then
     invalid_parameters="Yes"
 else
-	if [ ! -d $1 ]; then
-		invalid_parameters="Yes"
-		echo -e "\n\"$1\" DOES NOT EXIST"
-	fi
-	if [ ! -d $2 ]; then
-		if [ "$invalid_parameters" = "" ]; then
-			echo ""
-		fi
-		invalid_parameters="Yes"
-		echo -e "\"$2\" DOES NOT EXIST"
-	fi
+    if [ ! -d $1 ]; then
+        invalid_parameters="Yes"
+        echo -e "\n\"$1\" DOES NOT EXIST"
+    fi
+    if [ ! -d $2 ]; then
+        if [ "$invalid_parameters" = "" ]; then
+            echo ""
+        fi
+        echo -e "\"$2\" DOES NOT EXIST"
+    fi
 fi
 
 if [ "$invalid_parameters" != ""  ];then
-    echo -e "\nUsage:\n\t$(basename $0) <source-directory> <project directory>\n"
+    echo -e "\nUsage:\n\t$(basename $0) <source-directory> <files directory>\n"
     exit 1
 fi
 
 # change to the source directory
 cd $1
 
-PROJ_DIR="$2"
+FILES_DIR="$2"
 
-if [ ${PROJ_DIR: -1} = "/" ];then
-    PROJ_DIR=${PROJ_DIR:: -1}
-fi
-
-if [ ! -d ${PROJ_DIR}/media ];then
-    echo -e "\nProject ${PROJ_DIR} does not have a media directory\n"
-    exit 2
+if [ ${FILES_DIR: -1} != "/" ];then
+    FILES_DIR="${FILES_DIR}/"
 fi
 
 if [ ! -d public -o ! -d private ]; then
@@ -38,20 +34,20 @@ if [ ! -d public -o ! -d private ]; then
     exit 2
 fi
 
-echo "Moving public files..."
-mv ${PROJ_DIR}/media .
-mv public ${PROJ_DIR}/media
-
-
-
-
-if [ -d ${PROJ_DIR}/media-private ];then
-    echo "Moving private files..."
-    mv ${PROJ_DIR}/media-private .
-    mv private ${PROJ_DIR}/media-private
-else
-    echo -e "\nProject does not have a media-private directory ignoring the private directory\n"
+if [[ ${FILES_DIR} == $HOME/repo/files/* ]] && [[ -d ${FILES_DIR} ]] && [[ ! -z "$(ls -A ${FILES_DIR})" ]]; then
+    echo "Deleting existing files"
+    rm -r ${FILES_DIR}
 fi
+if [[ ${FILES_DIR} == $HOME/repo/files/* ]] && [[ ! -d "${FILES_DIR}" ]]; then
+    mkdir -p ${FILES_DIR}
+fi
+
+# ignore current and parent directory
+GLOBOPTIONS=.:..
+# ensure hidden files/directories are include in '*'
+shopt -s dotglob
+
+mv * $FILES_DIR
 
 echo "Done"
 exit 0
