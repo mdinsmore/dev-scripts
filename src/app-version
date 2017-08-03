@@ -57,25 +57,32 @@ cd $projDir
 
 for i in `cat requirements/production.txt | grep "=="`
 do
-	package=`echo $i | cut -d"=" -f1| cut -c4-`
-	projVersion=`echo $i | cut -d"=" -f3`
+	prefix=`echo $i | cut -d"=" -f1| cut -c1-3`
+	if [ ${prefix} == "kb-" ];then
+		package=`echo $i | cut -d"=" -f1| cut -c4-`
+		projVersion=`echo $i | cut -d"=" -f3`
 
-	appVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f2`
-	relVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f3`
+		appVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f2`
+		relVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f3`
 
-	if [ "$projVersion" = "$appVersion" ]
-	then
-		print_line $package $projVersion "up to date"
-		# echo "App '$package' (version $projVersion) is up to date"
-	else
-		if [ "$appVersion" = "" ]
+		if [ "$projVersion" = "$appVersion" ]
 		then
-			print_line $package $projVersion "has unreleased updates ($relVersion)"
-			# echo "App '$package' (version $projVersion) has unreleased updates ($relVersion)"
+			print_line $package $projVersion "up to date"
+			# echo "App '$package' (version $projVersion) is up to date"
 		else
-			print_line $package $projVersion "New Version: $appVersion"
-			# echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
+			if [ "$appVersion" = "" ]
+			then
+				print_line $package $projVersion "has unreleased updates ($relVersion)"
+				# echo "App '$package' (version $projVersion) has unreleased updates ($relVersion)"
+			else
+				print_line $package $projVersion "New Version: $appVersion"
+				# echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
+			fi
 		fi
+	else
+		package=`echo $i | cut -d"=" -f1`
+		projVersion=`echo $i | cut -d"=" -f3`
+			print_line $package $projVersion ""
 	fi
 done
 

@@ -1,0 +1,12 @@
+VENV=$(ls -d venv-* 2> /dev/null)
+
+if [ "$VENV" != "" ];then
+	requirements -p
+	cd .
+	pip install -r requirements/local.txt --upgrade
+else
+	echo -e "\n\t********************************************"
+	echo -e   "\t* No Virtual Environment in this directory *"
+	echo -e   "\t********************************************\n"
+	exit 2
+fi
