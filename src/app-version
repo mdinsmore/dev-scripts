@@ -30,26 +30,22 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-if [ "$verbose" = "1" ]
-then
+if [ "$verbose" = "1" ]; then
 	echo "verbose=$verbose, project='$projDir', Leftovers: $@"
 fi
 
-if [ "$projDir" == "." ]
-then
+if [ "$projDir" == "." ]; then
 	projDir=`pwd`
 fi
 
-for i in `ls $appDir`
-do
+for i in `ls $appDir`; do
 	cd $appDir/$i
 	version=`git log -1 | grep "^    version " | cut -d' ' -f6`
 	relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 	echo "$i $version $relVersion"
 done >> /tmp/version-$$.txt
 
-if [ "$verbose" = "1" ]
-then
+if [ "$verbose" = "1" ]; then
 	cat /tmp/version-$$.txt
 fi
 
@@ -62,17 +58,14 @@ do
 		package=`echo $i | cut -d"=" -f1| cut -c4-`
 		projVersion=`echo $i | cut -d"=" -f3`
 
-		appVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f2`
-		relVersion=`grep $package /tmp/version-$$.txt | cut -d' ' -f3`
-
-		if [ "$projVersion" = "$appVersion" ]
-		then
+		appVersion=`grep "^$package" /tmp/version-$$.txt | cut -d' ' -f2`
+		relVersion=`grep "^$package" /tmp/version-$$.txt | cut -d' ' -f3`
+		if [ "$projVersion" = "$appVersion" ]; then
 			print_line $package $projVersion "up to date"
 			# echo "App '$package' (version $projVersion) is up to date"
 		else
-			if [ "$appVersion" = "" ]
-			then
-				print_line $package $projVersion "has unreleased updates ($relVersion)"
+			if [ "$appVersion" = "" ]; then
+				print_line $package $projVersion "Unreleased updates ($relVersion)"
 				# echo "App '$package' (version $projVersion) has unreleased updates ($relVersion)"
 			else
 				print_line $package $projVersion "New Version: $appVersion"

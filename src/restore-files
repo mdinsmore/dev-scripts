@@ -9,9 +9,10 @@ else
     fi
     if [ ! -d $2 ]; then
         if [ "$invalid_parameters" = "" ]; then
-            echo ""
+            echo -e "\n\"$2\" DOES NOT EXIST"
+        else
+            echo -e "The directory \"$2\" does not exist, it will be created"
         fi
-        echo -e "\"$2\" DOES NOT EXIST"
     fi
 fi
 

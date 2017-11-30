@@ -1,6 +1,16 @@
-VE=$(ls -d venv-* 2> /dev/null)
-if [ "${VE}" == "" ]; then 
-	echo -e "\nNo virtual environment found use create-venv to create one\n"
+if [ "$1" = "" ];then
+	VE=$(ls -d venv-* 2> /dev/null)
+else
+	VE="venv-$1"
+	SUFFIX=$1
+fi
+
+if [ "${VE}" = "" ]; then 
+	if [ "${SUFFIX}" = "" ];then
+		echo -e "\nNo virtual environment found use create-venv to create one\n"
+	else
+		create-venv ${SUFFIX}
+	fi
 	exit
 fi
 

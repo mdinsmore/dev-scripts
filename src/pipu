@@ -1,7 +1,7 @@
 VENV=$(ls -d venv-* 2> /dev/null)
 
 if [ "$VENV" != "" ];then
-	requirements -p
+	requirements
 	cd .
 	pip install -r requirements/local.txt --upgrade
 else

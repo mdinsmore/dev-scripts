@@ -40,8 +40,13 @@ source ${VENV}/bin/activate && \
 pip install --upgrade pip && \
 pip install -r ${REQUIREMENTS}
 
-
-echo -e "\n*************************************************"
-echo -e   "* Now run cd . to activate your new environment *"
-echo -e   "*************************************************\n"
+if [ $? = 0 ];then
+	echo -e "\n*************************************************"
+	echo -e   "* Now run cd . to activate your new environment *"
+	echo -e   "*************************************************\n"
+else
+	echo -e "\n********************************************************************************"
+	echo -e   "* An error occurred please fix this issue and recreate the virtual environment *"
+	echo -e   "********************************************************************************\n"
+fi
 

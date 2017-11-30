@@ -58,6 +58,11 @@ pip-compare
 Compare the app version of the current virtual environment with the version 
 specified in requirements/base.txt of the current project
 
+pipu
+--------------
+Update the current virtual environment to the latest versions including
+upgrading already installed versions
+
 pip-update-all
 --------------
 Update the current virtual environment to the latest versions regardless of 
