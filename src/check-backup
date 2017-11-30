@@ -1,0 +1,19 @@
+if [ $(id -u) -ne 0 ];then
+    echo "This script accesses syslog and must have superuser privelage"
+    exit 1
+fi
+grep ": dump database: " /var/log/syslog.1 | cut -c17-| sort >/tmp/back-begin
+grep ": remove: " /var/log/syslog.1 | cut -c17- | sort >/tmp/back-end
+
+while read l; do
+    # echo "Line: $l"
+    script=$(echo ${l} | cut -d' ' -f2 | cut -d':' -f1)
+    # echo "Script: ${script}"
+    grep "${script}" /tmp/back-end > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "$script succeeded"
+    else
+        echo "$script MAY HAVE FAILED"
+    fi
+done < /tmp/back-begin
+

@@ -1,0 +1,81 @@
+#!/usr/bin/python3
+import io
+import os
+import sys
+
+from collections import namedtuple
+
+
+LogEntry = namedtuple(
+    'LogEntry', ['date', 'line', 'message', 'server', 'script']
+)
+
+def parse_line(line):
+    date = line[:15].strip()
+    rest = line[16:].split(' ')
+    server = rest[0].strip()
+    script = rest[1][:-1].strip()
+    message = ' '.join(rest[2:]).strip()
+
+    return LogEntry(
+            date=date, line=line[:-1],server=server, script=script, message=message
+    )
+
+def format_file(file_name, script=None):
+    # use iso8859-15 to cater for non ascii input
+    # the io library gives better control of encoding than the os one
+    if file_name == '-':
+        syslog = io.TextIOWrapper(sys.stdin.buffer, encoding='iso8859-15')
+    else:
+        syslog = io.open(file_name, 'r', encoding='iso8859-15')
+
+    for line in syslog:
+        entry = parse_line(line)
+
+        if not script or entry.script.startswith(script):
+            print(entry.line)
+
+    if file_name != '-':
+        syslog.close()
+
+def print_usage():
+    print (
+        "\nDisplays the log entries for the specified program from a syslog "
+        "formatted log file"
+    )
+    print (
+        "\nUsage:\n\t{} <file name> <program name>".format(
+            os.path.basename(sys.argv[0])
+        )
+    )
+
+    print ("\nwhere:")
+    print(
+        "\t<file name> is the name of a syslog formatted file.  "
+        "Use '-' as the file name to read the log entries from standard input"
+    )
+    print(
+        "\n\t<program name> is the program or script whose log entries "
+        "should be displayed\n"
+    )
+    print(
+        "Example usage:"
+        "\n\tsudo cat /var/log/syslog.1 | parse-log - "
+        "backup.www.your-domain.co.uk"
+        "\n\tsudo zcat /var/log/syslog.1.gz | parse-log - "
+        "backup.www.your-domain.co.uk"
+        "\n\tsudo /path/to/parse-log /var/log/syslog "
+        "backup.www.your-domain.co.uk"
+    )
+
+if len(sys.argv) > 1:
+    file_name = sys.argv[1]
+else:
+    print_usage()
+    sys.exit(1)
+
+if len(sys.argv) > 2:
+    format_file(file_name, script=sys.argv[2])
+else:
+    format_file(file_name)
+
