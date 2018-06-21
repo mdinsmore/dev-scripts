@@ -1,10 +1,14 @@
 #! /bin/bash
 APP_DIR=$HOME/dev/app
 
+APP_LIST=$(ls ${APP_DIR})
+
 if [ "$1" != "" ]; then
-    APP_LIST=$1
-else
-    APP_LIST=$(ls ${APP_DIR})
+	if [ "${1^^}" = "--PRUNE" ]; then
+		PRUNE="yes"
+	else
+		APP_LIST=$1
+	fi
 fi
 
 echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
@@ -12,7 +16,12 @@ echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1,
 for app in ${APP_LIST}; do
     cd $APP_DIR/$app
     echo -e "\rUpdating $app ...\c"
-    git pull > /tmp/app-pull-$$ 2>&1
+	if [ "$PRUNE" == "yes" ]; then
+		git fetch -p > /tmp/app-pull-$$ 2>&1
+		git merge FETCH_HEAD >> /tmp/app-pull-$$ 2>&1
+	else
+		git pull > /tmp/app-pull-$$ 2>&1
+	fi
     pull=`cat /tmp/app-pull-$$`
     if [ "$pull" != "Already up-to-date." ]
     then

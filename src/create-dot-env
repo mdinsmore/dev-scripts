@@ -2,7 +2,7 @@ if [ ! -f .env ]; then
 	echo "Creating .env"
 	touch .env
 	echo "#find the virtual environment in the current directory" >> .env
-	echo "VE=\`ls -d venv-* 2>/dev/null | line\`" >> .env
+	echo "VE=\$(ls -d venv-* 2>/dev/null | head -n 1)" >> .env
 	echo "" >> .env
 	echo "if [ \`echo \"\$VE\" | wc -w\` -eq 1 ]; then" >> .env
 	echo "    if [ \"\$VE_VERBOSE\" = \"TRUE\" ]; then" >> .env
