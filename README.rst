@@ -49,6 +49,10 @@ app-version
 Read the version number (from the git log) of django apps and compare with 
 requirements/production.txt of the current project
 
+create-scss
+-----------
+Create a scss structure in a project and installl the requirements
+
 create-venv
 -----------
 Create a virtual environment and install the requirements
