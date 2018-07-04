@@ -65,6 +65,7 @@ else
 fi
 
 
+
 for FILE in \
 	'abstracts/_mixins' \
 	'abstracts/_functions' \
@@ -94,6 +95,10 @@ do
 	echo "Add ${FILE_NAME} to ${MASTER_FILE}"
 	echo "@import \"${SCSS_NAME}\";" >> ${MASTER_FILE}
 done
+
+# ensure the theme and vendor directories get added to git repo
+touch theme/.placeholder
+touch vendor/.placeholder
 
 if [ "${CREATE_STYLES}" != 'yes' ]; then
 	echo "$ORIG_MASTER_FILE already existed - files may be added manually from $MASTER_FILE"
