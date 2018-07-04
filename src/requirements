@@ -59,6 +59,12 @@ pip freeze > /tmp/pip$$
 
 for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	CURR_PACKAGE=`echo ${REQ} | cut -d'=' -f1`
+
+	# hack for --no-binary
+	if [ "$CURR_PACKAGE" == "--no-binary" ];then
+		continue
+	fi
+
 	CURR_VERSION=`echo ${REQ} | cut -d'=' -f3`
 	INST_VERSION=`grep "^$CURR_PACKAGE==" /tmp/pip$$ | cut -d'=' -f3`
 
