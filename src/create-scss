@@ -97,7 +97,7 @@ do
 done
 
 # ensure the theme and vendor directories get added to git repo
-touch theme/.placeholder
+touch themes/.placeholder
 touch vendor/.placeholder
 
 if [ "${CREATE_STYLES}" != 'yes' ]; then

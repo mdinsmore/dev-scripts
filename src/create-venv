@@ -39,6 +39,7 @@ virtualenv --no-site-packages --python=python3 ${VENV} && \
 source ${VENV}/bin/activate && \
 pip install --upgrade pip && \
 pip install -r ${REQUIREMENTS}
+pip install ipdb
 
 if [ $? = 0 ];then
 	echo -e "\n*************************************************"
