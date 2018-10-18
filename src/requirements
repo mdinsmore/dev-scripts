@@ -44,7 +44,7 @@ if [ ! -f  "${REQUIREMENTS_FILE}" ]; then
 	echo -e "\nRequirements file '${REQUIREMENTS_FILE}' does not exist\n"
 	exit 2
 fi
-
+TICK=$(echo -e "\xE2\x9C\x94")
 FLAG=$(echo -e "\xe2\x9a\x91")
 
 function print_line() {
@@ -82,7 +82,7 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	if [ "${CURR_VERSION}" != "${INST_VERSION}" ];then
 		INST_VERSION_TEXT=${INST_VERSION}
 	else
-		INST_VERSION_TEXT=${FLAG}
+		INST_VERSION_TEXT=${TICK}
 	fi
 	print_line "${CURR_PACKAGE}" "${CURR_VERSION}" "${REF_VERSION_TEXT}" "${INST_VERSION_TEXT}"
 done
