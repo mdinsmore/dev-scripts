@@ -57,6 +57,10 @@ create-venv
 -----------
 Create a virtual environment and install the requirements
 
+git-stat
+--------
+Check the git status of all apps, modules and projects.
+
 pip-compare
 -----------
 Compare the app version of the current virtual environment with the version 
@@ -79,6 +83,10 @@ Recreate the virtual environments for all projects
 pull-apps
 ---------
 Pull the latest version of django apps from the remote repository
+
+pull-projects
+-------------
+Pull the latest version of projects from the remote repository
 
 recreate-venv
 ---------
