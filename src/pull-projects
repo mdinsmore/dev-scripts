@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd $HOME/dev/project
+
+for PROJECT in $(ls); do
+	if [ -d ${PROJECT} ]; then
+		echo "${PROJECT}"
+		echo "-------------------"
+		cd ${PROJECT}
+		if [ -d .git ]; then
+			git pull
+		fi
+		cd ..
+	fi
+done
