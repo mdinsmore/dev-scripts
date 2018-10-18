@@ -1,7 +1,7 @@
 if [ "$3" = "" ];then
-	echo -e "\nUsage:"
-	echo -e "\t$(basename $0) <project group> <name> <description> [<master file> <output path>]\n\n"
-	exit
+    echo -e "\nUsage:"
+    echo -e "\t$(basename $0) <project group> <name> <description> [<master file> <output path>]\n\n"
+    exit
 fi
 PROJECT_GROUP="$1"
 PROJECT_NAME="$2"
@@ -11,41 +11,45 @@ PROJECT_AUTHOR="$USER"
 PROJECT_URL="https://gitlab.com/${PROJECT_GROUP}/${PROJECT_NAME}.git"
 MASTER_FILE=styles.scss
 OUTPUT_PATH=css/styles.css
+MINIFY_PATH=css/styles.min.css
 
 if [ "$4" != "" -a "$4" != "-" ];then
-	MASTER_FILE="$4"
+    MASTER_FILE="$4"
 fi
 
 if [ "$5" != "" ];then
-	OUTPUT_PATH="$5"
+    OUTPUT_PATH="$5"
 fi
 
 if [ ! -f package.json ];then
-	echo -e "{\n" \
-		"  \"name\": \"${PROJECT_NAME}\",\n" \
-		"  \"version\": \"2.0.0\",\n" \
-		"  \"description\": \"${PROJECT_DESC}\",\n" \
-		"  \"main\": \"index.js\",\n" \
-		"  \"scripts\": {\n" \
-		"    \"scss-compile\": \"node-sass scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\",\n" \
-		"    \"scss-watch\": \"node-sass -w scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\",\n" \
-		"    \"serve\": \"parallelshell \\\"node-sass scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\\\" \\\"node-sass -w scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\\\" \\\"live-server --port=4200\\\"\"\n" \
-		"  },\n" \
-		"  \"repository\": {\n" \
-		"    \"type\": \"git\",\n" \
-		"    \"url\": \"${PROJECT_URL}\"\n" \
-		"  },\n" \
-		"  \"author\": \"$PROJECT_AUTHOR\",\n" \
-		"  \"license\": \"ISC\",\n" \
-		"  \"devDependencies\": {\n" \
-		"    \"node-sass\": \"git+https://github.com/sass/node-sass.git\",\n" \
-		"    \"parallelshell\": \"^3.0.2\"\n" \
-		"  }\n" \
-		"}\n" > package.json
-	echo "Running npm install..."
-	npm install
+    echo -e "{\n" \
+        "  \"name\": \"${PROJECT_NAME}\",\n" \
+        "  \"version\": \"2.0.0\",\n" \
+        "  \"description\": \"${PROJECT_DESC}\",\n" \
+        "  \"main\": \"index.js\",\n" \
+        "  \"scripts\": {\n" \
+        "    \"scss-compile\": \"node-sass scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded --source-map true --source-map-embed true\",\n" \
+        "    \"scss-minify\": \"node-sass scss/${MASTER_FILE} ${MINIFY_PATH} --output-style compressed\",\n" \
+        "    \"scss-watch\": \"node-sass -w scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\",\n" \
+        "    \"live-server\": \"live-server --port=4200\",\n" \
+        "    \"serve\": \"npm-run-all -l -p scss-watch live-server\"\n" \
+        "  },\n" \
+        "  \"repository\": {\n" \
+        "    \"type\": \"git\",\n" \
+        "    \"url\": \"${PROJECT_URL}\"\n" \
+        "  },\n" \
+        "  \"author\": \"$PROJECT_AUTHOR\",\n" \
+        "  \"license\": \"ISC\",\n" \
+        "  \"devDependencies\": {\n" \
+        "    \"live-server\": \"^1.2.0\",\n" \
+        "    \"node-sass\": \"git+https://github.com/sass/node-sass.git\",\n" \
+        "    \"npm-run-all\": \"^4.1.3\"\n" \
+        "  }\n" \
+        "}\n" > package.json
+    echo "Running npm install..."
+    npm install
 else
-	echo "package.json already exists - you will need to configure manually"
+    echo "package.json already exists - you will need to configure manually"
 fi
 
 mkdir -p scss
@@ -55,45 +59,45 @@ mkdir -p abstracts base components layouts pages themes vendor
 
 if [ -f ${MASTER_FILE} ];
 then
-	CREATE_STYLES=no
-	ORIG_MASTER_FILE=${MASTER_FILE}
-	MASTER_FILE=/tmp/styles.scss
-	cat /dev/null > ${MASTER_FILE}
+    CREATE_STYLES=no
+    ORIG_MASTER_FILE=${MASTER_FILE}
+    MASTER_FILE=/tmp/styles.scss
+    cat /dev/null > ${MASTER_FILE}
 
 else
-	CREATE_STYLES=yes
+    CREATE_STYLES=yes
 fi
 
 
 
 for FILE in \
-	'abstracts/_mixins' \
-	'abstracts/_functions' \
-	'abstracts/_variables' \
-	'base/_animations' \
-	'base/_base' \
-	'base/_typography' \
-	'base/_utilities' \
-	'components/_button' \
-	'components/_form' \
-	'components/_menu' \
-	'layouts/_grid' \
-	'layouts/_container' \
-	'layouts/_header' \
-	'layouts/_footer' \
-	'pages/_home'
+    'abstracts/_mixins' \
+    'abstracts/_functions' \
+    'abstracts/_variables' \
+    'base/_animations' \
+    'base/_base' \
+    'base/_typography' \
+    'base/_utilities' \
+    'components/_button' \
+    'components/_form' \
+    'components/_menu' \
+    'layouts/_grid' \
+    'layouts/_container' \
+    'layouts/_header' \
+    'layouts/_footer' \
+    'pages/_home'
 do
-	FILE_NAME=${FILE}.scss
-	SCSS_NAME="${FILE/\/_/\/}"
-	if [ ! -f ${FILE_NAME} ];then
-		echo "Creating ${FILE_NAME}"
-		touch ${FILE_NAME}
-	else
-		echo "${FILE_NAME} already exists"
-	fi
+    FILE_NAME=${FILE}.scss
+    SCSS_NAME="${FILE/\/_/\/}"
+    if [ ! -f ${FILE_NAME} ];then
+        echo "Creating ${FILE_NAME}"
+        touch ${FILE_NAME}
+    else
+        echo "${FILE_NAME} already exists"
+    fi
 
-	echo "Add ${FILE_NAME} to ${MASTER_FILE}"
-	echo "@import \"${SCSS_NAME}\";" >> ${MASTER_FILE}
+    echo "Add ${FILE_NAME} to ${MASTER_FILE}"
+    echo "@import \"${SCSS_NAME}\";" >> ${MASTER_FILE}
 done
 
 # ensure the theme and vendor directories get added to git repo
@@ -101,5 +105,13 @@ touch themes/.placeholder
 touch vendor/.placeholder
 
 if [ "${CREATE_STYLES}" != 'yes' ]; then
-	echo "$ORIG_MASTER_FILE already existed - files may be added manually from $MASTER_FILE"
+    echo "$ORIG_MASTER_FILE already existed - files may be added manually from $MASTER_FILE"
 fi
+
+if [ ! -f index.html ]; then
+    echo -e "\n*** Please note there is no index.html ***\n"
+fi
+
+echo -e "\nIf the above has no errors you should now be able to run a test" \
+        "environment using:\n\n\tnpm run serve\n\nor simply watch for scss" \
+        "changes using:\n\n\tnpm run scss-watch\n\n"
