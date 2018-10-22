@@ -1,15 +1,34 @@
 #!/bin/bash
 
+
+function print_title {
+  TITLE=$1
+  echo -e "\n${TITLE}"
+  CHAR_COUNT=${#TITLE}
+  for ((i=0;i<$CHAR_COUNT; i++)); do
+    echo -e "-\c"
+  done
+  echo ""
+}
+
+function print_separator {
+    echo "====================================================="
+}
+
+
 cd $HOME/dev/project
 
 for PROJECT in $(ls); do
-	if [ -d ${PROJECT} ]; then
-		echo "${PROJECT}"
-		echo "-------------------"
-		cd ${PROJECT}
-		if [ -d .git ]; then
-			git pull
-		fi
-		cd ..
-	fi
+    if [ -d ${PROJECT} ]; then
+        cd ${PROJECT}
+        if [ -d .git ]; then
+            REMOTE=$(git remote -v | grep "(fetch)" | cut -f2 | cut -d" " -f1)
+            if [ "${REMOTE}" != "" ]; then
+                print_title "${PROJECT} (from ${REMOTE})"
+                git pull
+                print_separator
+            fi
+        fi
+        cd ..
+    fi
 done
