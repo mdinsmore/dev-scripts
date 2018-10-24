@@ -18,7 +18,7 @@ SEP_REQUIRED=""
 
 # for DIR in ${HOME}/dev/app ${HOME}/dev/project ${HOME}/dev/module; do
 for TYPE in app project module; do
-	DIR="${HOME}/dev/${TYPE}"
+    DIR="${HOME}/dev/${TYPE}"
     cd ${DIR}
 
     for i in `ls`; do
@@ -27,18 +27,24 @@ for TYPE in app project module; do
             git status > /tmp/$$
             IS_UP_TO_DATE=$(grep "Your branch is up-to-date with " /tmp/$$)
             NOT_STAGED=$(grep "Changes not staged for commit:" /tmp/$$)
+            STAGED=$(grep "Changes to be committed:" /tmp/$$)
             UNTRACKED=$(grep "Untracked files:" /tmp/$$)
-            if [ "${IS_UP_TO_DATE}" != "" -a "${NOT_STAGED}" == "" -a "${UNTRACKED}" == "" ];then
+            if [ "${IS_UP_TO_DATE}" != "" -a "${NOT_STAGED}" == "" -a "${STAGED}" == "" -a "${UNTRACKED}" == "" ];then
                 echo "${TYPE^^}: $i is up to date"
                 SEP_REQUIRED="yes"
             else
-                if [ "${SEP_REQUIRED}" != "" ]; then
+                REMOTE="$(git remote -v)"
+                if [ "${REMOTE}" == "" ]; then
+                    echo "${TYPE^^}: $i has no remote repository"
+                else
+                    if [ "${SEP_REQUIRED}" != "" ]; then
+                        print_separator
+                    fi
+                    print_title "${TYPE^^}: $i"
+                    cat /tmp/$$
                     print_separator
+                    SEP_REQUIRED=""
                 fi
-                print_title "${TYPE^^}: $i"
-                cat /tmp/$$
-                print_separator
-                SEP_REQUIRED=""
             fi
             cd ..
         fi
