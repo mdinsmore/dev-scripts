@@ -1,8 +1,12 @@
 unset cd
+RED="\033[0;31m"
+BLUE="\033[0;34m"
+GREEN="\033[0;32m"
+NC="\033[0m"
 
 function print_title {
   TITLE=$1
-  echo -e "\n${TITLE}"
+  echo -e "\n${RED}${TITLE}${NC}"
   CHAR_COUNT=${#TITLE}
   for ((i=0;i<$CHAR_COUNT; i++)); do
     echo -e "-\c"
@@ -15,8 +19,8 @@ function print_separator {
 }
 
 SEP_REQUIRED=""
+COUNT=0
 
-# for DIR in ${HOME}/dev/app ${HOME}/dev/project ${HOME}/dev/module; do
 for TYPE in app project module; do
     DIR="${HOME}/dev/${TYPE}"
     cd ${DIR}
@@ -30,13 +34,14 @@ for TYPE in app project module; do
             STAGED=$(grep "Changes to be committed:" /tmp/$$)
             UNTRACKED=$(grep "Untracked files:" /tmp/$$)
             if [ "${IS_UP_TO_DATE}" != "" -a "${NOT_STAGED}" == "" -a "${STAGED}" == "" -a "${UNTRACKED}" == "" ];then
-                echo "${TYPE^^}: $i is up to date"
+                echo -e "${GREEN}${TYPE^^}: $i is up to date${NC}"
                 SEP_REQUIRED="yes"
             else
                 REMOTE="$(git remote -v)"
                 if [ "${REMOTE}" == "" ]; then
-                    echo "${TYPE^^}: $i has no remote repository"
+                    echo -e "${BLUE}${TYPE^^}: $i has no remote repository${NC}"
                 else
+                    COUNT=$(expr ${COUNT} + 1)
                     if [ "${SEP_REQUIRED}" != "" ]; then
                         print_separator
                     fi
@@ -50,3 +55,9 @@ for TYPE in app project module; do
         fi
     done
 done
+
+if [ ${COUNT} -eq 0 ];then
+    echo -e "\n${GREEN}All repositories are up to date${NC}\n"
+else
+    echo -e "\n${RED}${COUNT} repositories have outstanding actions${NC}\n"
+fi
