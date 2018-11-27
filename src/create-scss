@@ -108,6 +108,8 @@ if [ "${CREATE_STYLES}" != 'yes' ]; then
     echo "$ORIG_MASTER_FILE already existed - files may be added manually from $MASTER_FILE"
 fi
 
+cd ..
+
 if [ ! -f index.html ]; then
     echo -e "\n*** Please note there is no index.html ***\n"
 fi
