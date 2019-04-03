@@ -12,6 +12,11 @@ prefix="${package}-"
 suffix=".tar.gz"
 outfile="/tmp/$package-$$.tmp"
 wget -O ${outfile} ${PYPI_SERVER}${package} 2> /dev/null
+if [ ! -s ${outfile} ];then
+	echo -e "Cannot get data from the pypi server \"$PYPI_SERVER\""
+	exit
+fi
+
 tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
 tmp=${tmp#$prefix}
 released_version=${tmp%$suffix}
