@@ -1,7 +1,7 @@
 PROD_REQUIREMENTS="requirements/production.txt"
 requirements -p
 echo ""
-
+PYPI_SERVER="$(grep index-url $HOME/.config/pip/pip.conf | awk '{ print $3 }')"
 package=`tr -d ' ' < setup.py| grep "^name=" | sed -e 's/name=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 version=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 if [ "$package" = "" ]; then
@@ -11,7 +11,7 @@ fi
 prefix="${package}-"
 suffix=".tar.gz"
 outfile="/tmp/$package-$$.tmp"
-wget -O ${outfile} https://pypi.kbsoftware.co.uk/kb/dev/+simple/${package} 2> /dev/null
+wget -O ${outfile} ${PYPI_SERVER}${package} 2> /dev/null
 tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
 tmp=${tmp#$prefix}
 released_version=${tmp%$suffix}
