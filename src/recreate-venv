@@ -16,7 +16,11 @@ fi
 
 SUFFIX="$(echo ${VE}|cut -d- -f2)"
 
-echo "Recreating ${VE}"
-
+echo "Deleting ${VE}"
 rm -rf ${VE}
+
+echo "Creating Virtual Environment in: ${VE}"
 create-venv ${SUFFIX}
+
+echo "Removing compiled python modules..."
+find . -name \*.pyc -delete
