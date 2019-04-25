@@ -3,6 +3,11 @@
 # allow different development directory
 # Assume the docs directory is module/docs within the development directory
 #
+BLACK="\033[0;30m"
+RED="\033[0;31m"
+BLUE="\033[0;34m"
+GREEN="\033[0;32m"
+NC="\033[0m"
 if [ "${DEVELOPMENT_DIR}" == "" ];then
 	DEVELOPMENT_DIR="$HOME/dev/"
 else
@@ -44,16 +49,15 @@ if [ ! -f  "${REQUIREMENTS_FILE}" ]; then
 	echo -e "\nRequirements file '${REQUIREMENTS_FILE}' does not exist\n"
 	exit 2
 fi
-TICK=$(echo -e "\xE2\x9C\x94")
-FLAG=$(echo -e "\xe2\x9a\x91")
+TICK=$(echo -e "${GREEN}\xE2\x9C\x94${NC}")
 
 function print_line() {
-	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-20.20s %15.15s    %-20.20s %s\n", $1, $2, $3, $4 }'
+	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-20.20s %15.15s    %-30.30s %s\n", $1, $2, $3, $4 }'
 }
 
 echo ""
-print_line "Package" "Current Version" "Reference Version" "Installed"
-print_line "-------" "---------------" "-----------------" "---------"
+print_line "Package" "Current Version" "$(echo -e "${BLACK}Reference Version${NC}")" "Installed"
+print_line "-------" "---------------" "$(echo -e "${BLACK}-----------------${NC}")" "---------"
 
 pip freeze > /tmp/pip$$
 
@@ -73,14 +77,13 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	REF_VERSION=`echo ${REF} | cut -d'=' -f3 | cut -d' ' -f1`
 
 	if [ "${CURR_VERSION}" != "${REF_VERSION}" ];then
-		REF_VERSION_TEXT=${REF_VERSION}
-		# echo "${CURR_PACKAGE} (${CURR_VERSION}) is not up to date ${REF_VERSION} "
+		REF_VERSION_TEXT="$(echo -e "${RED}${REF_VERSION}${NC}")"
 	else
-		REF_VERSION_TEXT="up to date"
+		REF_VERSION_TEXT="$(echo -e "${GREEN}up to date${NC}")"
 	fi
 
 	if [ "${CURR_VERSION}" != "${INST_VERSION}" ];then
-		INST_VERSION_TEXT=${INST_VERSION}
+		INST_VERSION_TEXT="${RED}${INST_VERSION}${NC}"
 	else
 		INST_VERSION_TEXT=${TICK}
 	fi

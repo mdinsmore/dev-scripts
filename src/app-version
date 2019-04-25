@@ -1,8 +1,11 @@
 appDir=$HOME/dev/app
 projDir=.
-TICK=$(echo -e "\xe2\x9c\x94")
-FLAG=$(echo -e "\xe2\x9a\x91")
-CROSS=$(echo -e "\xe2\x9c\x97")
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
+TICK=$(echo -e "${GREEN}\xe2\x9c\x94${NC}")
+FLAG=$(echo -e "${RED}\xe2\x9a\x91${NC}")
+CROSS=$(echo -e "${RED}\xe2\x9c\x97${NC}")
 
 function show_help() {
 	echo -e "Usage:\n\t$0 [-v|-h|-p<project name>\n\n"
