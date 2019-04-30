@@ -50,7 +50,7 @@ for i in `ls $appDir`; do
 	version=$(git log -1 | grep "^    version " | cut -d' ' -f6)
 	branch=$(git status | grep "On branch" | awk '{ print $3 }')
 	relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
-	echo "$i $version $relVersion $branch"
+	echo "$i|$version|$relVersion|$branch"
 done >> /tmp/version-$$.txt
 
 if [ "$verbose" = "1" ]; then
@@ -66,10 +66,10 @@ do
 		package=`echo $i | cut -d"=" -f1| cut -c4-`
 		projVersion=`echo $i | cut -d"=" -f3`
 
-		appVersion=`grep "^$package" /tmp/version-$$.txt | cut -d' ' -f2`
-		relVersion=`grep "^$package" /tmp/version-$$.txt | cut -d' ' -f3`
-		appBranch=`grep "^$package" /tmp/version-$$.txt | cut -d' ' -f4`
-		projBranch=`grep "^$package" requirements/branch.txt | cut -d'|' -f2`
+		appVersion=`grep "^$package|" /tmp/version-$$.txt | cut -d'|' -f2`
+		relVersion=`grep "^$package|" /tmp/version-$$.txt | cut -d'|' -f3`
+		appBranch=`grep "^$package|" /tmp/version-$$.txt | cut -d'|' -f4`
+		projBranch=`grep "^$package|" requirements/branch.txt | cut -d'|' -f2`
 		if [ "$projBranch" == "" -o "$appBranch" == "" ]; then
 			branchEqual=$FLAG
 		elif [ "$projBranch" ==  "$appBranch" ];then
@@ -77,17 +77,13 @@ do
 		else
 			branchEqual=$CROSS
 		fi
-
 		if [ "$projVersion" = "$appVersion" ]; then
 			print_line $package $projVersion "up to date" "$appBranch" "$branchEqual"
-			# echo "App '$package' (version $projVersion) is up to date"
 		else
 			if [ "$appVersion" = "" ]; then
 				print_line $package $projVersion "Unreleased updates ($relVersion)" "$appBranch" "$branchEqual"
-				# echo "App '$package' (version $projVersion) has unreleased updates ($relVersion)"
 			else
 				print_line $package $projVersion "New Version: $appVersion" "$appBranch" "$branchEqual"
-				# echo "App '$package' (version $projVersion) is not up to date, current version is $appVersion"
 			fi
 		fi
 	else
