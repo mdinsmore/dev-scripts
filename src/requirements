@@ -83,7 +83,7 @@ for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	fi
 
 	if [ "${CURR_VERSION}" != "${INST_VERSION}" ];then
-		INST_VERSION_TEXT="${RED}${INST_VERSION}${NC}"
+		INST_VERSION_TEXT="$(echo -e "${RED}${INST_VERSION}${NC}")"
 	else
 		INST_VERSION_TEXT=${TICK}
 	fi
