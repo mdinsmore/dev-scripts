@@ -1,0 +1,52 @@
+#!/bin/bash
+# Prune remote branches that are no longer on the origin and list
+# (and optionally delete) untracked branches>
+#
+RED="$(echo -e "\033[0;31m")"
+BLUE="$(echo -e "\033[0;34m")"
+GREEN="$(echo -e "\033[0;32m")"
+NC="$(echo -e "\033[0m")"
+
+REMOTES_LIST=/tmp/$$-remote
+git fetch --prune
+git branch -a --no-color | grep remotes/origin > ${REMOTES_LIST}
+UNTRACKED=0
+DELETED=0
+
+if [ "$1" = "-D" ]; then
+	DELETE_UNTRACKED="yes"
+fi
+
+for BRANCH in $(git branch -l --no-color | grep -v "^\*" | grep -v master); do
+	REMOTE=$(grep "^  remotes/origin/${BRANCH}" ${REMOTES_LIST})
+	if [ "${REMOTE}" = "" ]; then
+		((UNTRACKED++))
+		if [ "${DELETE_UNTRACKED}" = "yes" ]; then
+			echo -e "\nDelete the branch \"${BRANCH}\" (y/N) \c"
+			read ok
+			if [ "$ok" = "y" ]; then
+				git branch -D ${BRANCH}
+				((DELETED++))
+			fi
+		else
+			echo "${RED}${BRANCH}${NC}"
+		fi
+	fi
+done
+
+if [ ${UNTRACKED} -eq 0 ]; then
+	echo -e "\n${GREEN}No untracked branches${NC}"
+else
+	if [ ${UNTRACKED} -eq 1 ]; then
+		BRANCH_STR="branch"
+	else
+		BRANCH_STR="branches"
+	fi
+	if [ "${DELETE_UNTRACKED}" = "yes" ]; then
+		echo -e "\n${BLUE}Found ${UNTRACKED} untracked ${BRANCH_STR}, ${DELETED} deleted${NC}"
+	else
+		echo -e "\n${RED}${UNTRACKED} untracked ${BRANCH_STR}, to delete use the -D option${NC}"
+	fi
+fi
+
+rm ${REMOTES_LIST}
