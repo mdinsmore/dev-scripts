@@ -8,8 +8,20 @@ GREEN="$(echo -e "\033[0;32m")"
 NC="$(echo -e "\033[0m")"
 
 REMOTES_LIST=/tmp/$$-remote
+
+if [ ! -d .git ]; then
+	echo -e "\n${RED}This directory does not contain a git repository${NC}\n"
+	exit 2
+fi
+
 git fetch --prune
 git branch -a --no-color | grep remotes/origin > ${REMOTES_LIST}
+
+if [ ! -s ${REMOTES_LIST} ]; then
+	echo -e "\n${RED}No remote branches found in this repository${NC}\n"
+	exit 2
+fi
+
 UNTRACKED=0
 DELETED=0
 
