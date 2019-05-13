@@ -1,24 +1,55 @@
 if [ "$3" = "" ];then
     echo -e "\nUsage:"
-    echo -e "\t$(basename $0) <project group> <name> <description> [<master file> <output path>]\n\n"
+    echo -e "\t$(basename $0) <project group> <name> <description> [-m <master file> | -o <output path> | -d]\n\n"
+    echo -e "\nWhere:\n\t<project name> is the name of your project group on your cloud repository"
+    echo -e "\n\t<name> is the name of your project"
+    echo -e "\n\t<description> is a short description of your project"
+    echo -e "\n\t-m <master file> is the name of the master file in your project (default styles.scss)"
+    echo -e "\n\t-o <output path> is the name of the css file used in your project (default css/styles.scss unless the -d option is specified when the default is web/static/web/css/web.css)"
+    echo -e "\n\t-d specifies that this is a django project, this creates a django-server run option and runs this when your run  \"npm run serve\" "
     exit
 fi
 PROJECT_GROUP="$1"
 PROJECT_NAME="$2"
 PROJECT_DESC="$3"
 PROJECT_AUTHOR="$USER"
-
 PROJECT_URL="https://gitlab.com/${PROJECT_GROUP}/${PROJECT_NAME}.git"
 MASTER_FILE=styles.scss
-OUTPUT_PATH=css/styles.css
-MINIFY_PATH=css/styles.min.css
 
-if [ "$4" != "" -a "$4" != "-" ];then
-    MASTER_FILE="$4"
-fi
+shift 3
 
-if [ "$5" != "" ];then
-    OUTPUT_PATH="$5"
+while getopts "dm:o:" opt; do
+    case ${opt} in
+    d)
+        DJANGO_PROJECT=true
+        ;;
+    m)
+        MASTER_FILE="$OPTARG"
+        ;;
+    o)
+        OUTPUT_PATH="$OPTARG"
+        ;;
+    \?)
+        echo "Invalid argument: -${opt}"
+        exit 2
+        ;;
+    esac
+done
+
+if [ "${DJANGO_PROJECT}" ]; then
+    if [ "${OUTPUT_PATH}" = "" ]; then
+        OUTPUT_PATH=web/static/web/css/web.css
+    fi
+
+    MINIFY_PATH=web/static/wev/css/web.min.css
+    SERVE_OPTION="\"django-server\": \"django-admin runserver 0.0.0.0:8000\",\n     \"serve\": \"npm-run-all -l -p scss-watch django-server\"\n"
+else
+    if [ "${OUTPUT_PATH}" = "" ]; then
+        OUTPUT_PATH=css/styles.css
+    fi
+
+    MINIFY_PATH=css/styles.min.css
+    SERVE_OPTION="\"serve\": \"npm-run-all -l -p scss-watch live-server\"\n"
 fi
 
 if [ ! -f package.json ];then
@@ -28,11 +59,11 @@ if [ ! -f package.json ];then
         "  \"description\": \"${PROJECT_DESC}\",\n" \
         "  \"main\": \"index.js\",\n" \
         "  \"scripts\": {\n" \
-        "    \"scss-compile\": \"node-sass scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded --source-map true --source-map-embed true\",\n" \
+        "    \"scss-compile\": \"node-sass scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded --source-map true\",\n" \
         "    \"scss-minify\": \"node-sass scss/${MASTER_FILE} ${MINIFY_PATH} --output-style compressed\",\n" \
-        "    \"scss-watch\": \"node-sass -w scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded\",\n" \
+        "    \"scss-watch\": \"node-sass -w scss/${MASTER_FILE} ${OUTPUT_PATH} --output-style expanded --source-map true\",\n" \
         "    \"live-server\": \"live-server --port=4200\",\n" \
-        "    \"serve\": \"npm-run-all -l -p scss-watch live-server\"\n" \
+        "    ${SERVE_OPTION}" \
         "  },\n" \
         "  \"repository\": {\n" \
         "    \"type\": \"git\",\n" \
@@ -41,15 +72,18 @@ if [ ! -f package.json ];then
         "  \"author\": \"$PROJECT_AUTHOR\",\n" \
         "  \"license\": \"ISC\",\n" \
         "  \"devDependencies\": {\n" \
-        "    \"live-server\": \"^1.2.0\",\n" \
-        "    \"node-sass\": \"git+https://github.com/sass/node-sass.git\",\n" \
-        "    \"npm-run-all\": \"^4.1.3\"\n" \
+        "    \"live-server\": \"^1.2.1\",\n" \
+        "    \"node-sass\": \"^4.12.0\",\n" \
+        "    \"npm-run-all\": \"^4.1.5\"\n" \
         "  }\n" \
         "}\n" > package.json
     echo "Running npm install..."
     npm install
+    npm install --package-lock-only
+    npm audit
 else
-    echo "package.json already exists - you will need to configure manually"
+    echo -e "package.json already exists - you will need to configure manually"
+    echo -e "and then run \"npm install\"\n"
 fi
 
 mkdir -p scss
@@ -67,8 +101,6 @@ then
 else
     CREATE_STYLES=yes
 fi
-
-
 
 for FILE in \
     'abstracts/_mixins' \
@@ -110,7 +142,7 @@ fi
 
 cd ..
 
-if [ ! -f index.html ]; then
+if [ ! "$DJANGO_PROJECT" -a ! -f index.html ]; then
     echo -e "\n*** Please note there is no index.html ***\n"
 fi
 
