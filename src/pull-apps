@@ -2,42 +2,52 @@
 APP_DIR=$HOME/dev/app
 
 APP_LIST=$(ls ${APP_DIR})
+RED="$(echo -e "\033[0;31m")"
+BLUE="$(echo -e "\033[0;34m")"
+GREEN="$(echo -e "\033[0;32m")"
+NC="$(echo -e "\033[0m")"
 
 if [ "$1" != "" ]; then
-	if [ "${1^^}" = "--PRUNE" ]; then
-		PRUNE="yes"
-	else
-		APP_LIST=$1
-	fi
+    APP_LIST=$1
 fi
 
 echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
 
-for app in ${APP_LIST}; do
-    cd $APP_DIR/$app
-    echo -e "\rUpdating $app ...\c"
-	if [ "$PRUNE" == "yes" ]; then
-		git fetch -p > /tmp/app-pull-$$ 2>&1
-		git merge FETCH_HEAD >> /tmp/app-pull-$$ 2>&1
-	else
-		git pull > /tmp/app-pull-$$ 2>&1
-	fi
-    pull=`cat /tmp/app-pull-$$`
-    if [ "$pull" != "Already up-to-date." ]
-    then
-        echo -e "\r============================================================="
-        echo "$app"
-        echo "-------------------------------------------------------------"
-        cat /tmp/app-pull-$$
-    fi
+for APP in ${APP_LIST}; do
+    cd ${APP_DIR}/${APP}
+    echo -e "\rUpdating ${APP} ...\c"
+    untracked-branches > /tmp/untracked-branches-$$ 2>&1
+    git merge FETCH_HEAD >> /tmp/app-pull-$$ 2>&1
     git remote update > /dev/null 2>&1
     git status > /tmp/app-status-$$
-    branch=`grep "^On branch" /tmp/app-status-$$ | cut -c10-`
-    status=`grep "^Your branch is" /tmp/app-status-$$ | cut -c15-`
+    BRANCH=$(grep "^On branch" /tmp/app-status-$$ | cut -c10-)
+    STATUS=$(grep "^Your branch is" /tmp/app-status-$$ | cut -c15-)
+    STATUS_UP_TO_DATE=$(echo ${STATUS} | grep "up to date")
     grep "^Changes" /tmp/app-status-$$ > /tmp/app-status-$$-a
     grep "^Untracked" /tmp/app-status-$$ >> /tmp/app-status-$$-a
-    changes=`cat /tmp/app-status-$$-a | cut -d: -f1 | sed ':a;N;$!ba;s/\n/ and /g'`
+    CHANGES=$(cat /tmp/app-status-$$-a | cut -d: -f1 | sed ':a;N;$!ba;s/\n/ and /g')
+    if [ "${STATUS_UP_TO_DATE}" != "" -o "${CHANGES}" = "" ];then
+        COLOUR=${GREEN}
+    else
+        COLOUR=${RED}
+    fi
 
-    echo "$app|$branch|$status|$changes" | gawk  -F \| '{ printf "\r%-15.15s %-20.20s %s %s\n", $1, $2, $3, $4 }'
-    rm /tmp/app-pull-$$ /tmp/app-status-$$ /tmp/app-status-$$-a
+    PULL=$(cat /tmp/app-pull-$$)
+    UNTRACKED=$(cat /tmp/untracked-branches-$$ | grep "No untracked branches")
+    if [ "${PULL}" != "Already up-to-date." -o "${UNTRACKED}" = "" ]; then
+        echo -e "\r============================================================="
+        echo "${APP}"
+        echo "-------------------------------------------------------------"
+        if [ "$PULL" != "Already up-to-date." ]; then
+            cat /tmp/app-pull-$$
+        fi
+        if [ "${UNTRACKED}" = "" ]; then
+            echo "Untracked branches"
+            cat /tmp/untracked-branches-$$
+        fi
+    fi
+    
+
+    echo "${COLOUR}|${APP}|${BRANCH}|${STATUS}|${CHANGES}|${NC}" | gawk  -F \| '{ printf "\r%s%-15.15s %-20.20s %s %s%s\n", $1, $2, $3, $4, $5, $6 }'
+    rm /tmp/app-pull-$$ /tmp/app-status-$$ /tmp/app-status-$$-a /tmp/untracked-branches-$$
 done

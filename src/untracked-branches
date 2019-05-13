@@ -2,6 +2,7 @@
 # Prune remote branches that are no longer on the origin and list
 # (and optionally delete) untracked branches>
 #
+THIS_SCRIPT=$(basename $0)
 RED="$(echo -e "\033[0;31m")"
 BLUE="$(echo -e "\033[0;34m")"
 GREEN="$(echo -e "\033[0;32m")"
@@ -57,7 +58,7 @@ else
 	if [ "${DELETE_UNTRACKED}" = "yes" ]; then
 		echo -e "\n${BLUE}Found ${UNTRACKED} untracked ${BRANCH_STR}, ${DELETED} deleted${NC}"
 	else
-		echo -e "\n${RED}${UNTRACKED} untracked ${BRANCH_STR}, to delete use the -D option${NC}"
+		echo -e "\n${RED}${UNTRACKED} untracked ${BRANCH_STR}, to delete run \"$THIS_SCRIPT -D\"${NC}"
 	fi
 fi
 
