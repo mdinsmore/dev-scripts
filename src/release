@@ -1,6 +1,11 @@
 PROD_REQUIREMENTS="requirements/production.txt"
 requirements -p
 echo ""
+
+if [ "$1" = "--first" ]; then
+	FIRST_UPLOAD=true
+fi
+
 PYPI_SERVER="$(grep index-url $HOME/.config/pip/pip.conf | awk '{ print $3 }')"
 package=`tr -d ' ' < setup.py| grep "^name=" | sed -e 's/name=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 version=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
@@ -13,13 +18,18 @@ suffix=".tar.gz"
 outfile="/tmp/$package-$$.tmp"
 wget -O ${outfile} ${PYPI_SERVER}${package} 2> /dev/null
 if [ ! -s ${outfile} ];then
-	echo -e "Cannot get data from the pypi server \"$PYPI_SERVER\""
-	exit
+	echo -e "Cannot get data on this package from the pypi server \"$PYPI_SERVER\""
+	if [ "${FIRST_UPLOAD}" = "true" ]; then
+		released_version="UNKNOWN"
+	else
+		exit
+	fi
+else
+	tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
+	tmp=${tmp#$prefix}
+	released_version=${tmp%$suffix}
 fi
 
-tmp=`grep "^kb/dev" ${outfile}  | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
-tmp=${tmp#$prefix}
-released_version=${tmp%$suffix}
 echo "Last released version on pydev is : ${released_version}"
 
 if [ "${version}" != "${released_version}" ];then
