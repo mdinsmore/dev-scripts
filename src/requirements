@@ -64,8 +64,8 @@ pip freeze > /tmp/pip$$
 for REQ in `grep == ${REQUIREMENTS_FILE}`; do
 	CURR_PACKAGE=`echo ${REQ} | cut -d'=' -f1`
 
-	# hack for --no-binary
-	if [ "$CURR_PACKAGE" == "--no-binary" ];then
+	# ignore --no-binary and commented out lines
+	if [[ "$CURR_PACKAGE" == "--no-binary" ]] || [[ "$CURR_PACKAGE" == \#* ]];then
 		continue
 	fi
 

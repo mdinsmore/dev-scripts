@@ -1,0 +1,53 @@
+if [ "${DJANGO_SETTINGS_MODULE}" = "" ]; then
+	echo "The DJANGO_SETTINGS_MODULE environment variable is not set"
+	echo "Change to a project directory and activate the virtual environment"
+	exit
+fi
+
+if [ ! -f package.json ]; then
+	echo "you are either not in a project directory or your project does not contain a package.json"
+	exit
+fi
+
+static_site=$(grep static-site package.json)
+
+if [ "$static_site" = "" ]; then
+	echo "No static-site script defined in your package.json"
+
+	echo "define a script as follows:"
+	echo "    \"static-site\": \"live-server --port=4200 temp/site-download/ --mount=/media:media/\","
+	exit
+fi
+
+STATIC_SITE_HOME="temp/site-download"
+mkdir -p ${STATIC_SITE_HOME}
+PROJ_DIR=$(pwd)
+
+TEMP_SETT="dev_$$"
+EXISTING_SETTINGS=$(echo ${DJANGO_SETTINGS_MODULE} | sed -e 's/\./\//g')
+cp ${EXISTING_SETTINGS}.py settings/${TEMP_SETT}.py
+echo "DEBUG=False" >> settings/${TEMP_SETT}.py
+
+trap 'kill $(jobs -p)' EXIT
+
+(django-admin runserver 0.0.0.0:8888 --settings=settings.${TEMP_SETT} --insecure) &
+
+
+cd ${STATIC_SITE_HOME}
+
+if [ $(pwd) != "${PROJ_DIR}/${STATIC_SITE_HOME}" ]; then
+	echo "Could not change to ${STATIC_SITE_HOME}"
+	exit
+fi
+
+pwd
+sleep 4
+
+wget -m http://localhost:8888 -nH
+for FILE_NAME in $(find . -name '*\?*'); do
+	REAL_NAME=$(echo ${FILE_NAME} | cut -d\? -f1)
+	mv ${FILE_NAME} ${REAL_NAME}
+done
+rm ${PROJ_DIR}/settings/${TEMP_SETT}.py
+
+echo -e "\nNow run \"npm run static-site\" to view the mirrored copy of the site\n"
