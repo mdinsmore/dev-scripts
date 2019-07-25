@@ -1,49 +1,102 @@
 #! /bin/bash
 
-if [ "$2" != "" -a "$2" != "-" ];then
-	CUR_PROJ=$2
-else
-	if [ -z "${CURRENT_PROJECT}" ]; then
-		echo -e "The environment variable CURRENT_PROJECT is not set"
-		echo -e "Either set the environment variable"
-		echo -e "or pass the current project as the second parameter\n"
-		exit
-	fi
-	CUR_PROJ=${CURRENT_PROJECT}
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -p|--password)
+    PROMPT_FOR_PASSWORD=true
+    shift # past argument
+    ;;
+    -l|--live-server|--production)
+    PRODUCTION=true
+    PROMPT_FOR_PASSWORD=true
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+if [ "$1" = "" -o "$1" = "-" -o "$2" = "" ]; then
+	tabs 4
+	echo -e "\nUsage:\n\t$(basename $0) [<options>] <restore file> <original role> [<database name>] [<new role>]\n"
+	echo -e "\t\t- Valid <options> are:"
+	echo -e "\t\t    -p|--password - prompt for a password for the role"
+	echo -e "\t\t    -l|--live-server|--production - production style database "
+	echo -e "\t\t                                    so <original role> defines"
+	echo -e "\t\t                                    the detault <database name>"
+	echo -e "\t\t                                    and <new role> and prompt"
+	echo -e "\t\t                                    for password is assumed\n"
+	echo -e "\t\t- <restore file> the sql script to restore the database, if it"
+	echo -e "\t\t  does not exist relative to the current directory"
+	echo -e "\t\t  the directory /home/${USER}/repo/backup/<original role> is"
+	echo -e "\t\t  searched\n"
+	echo -e "\t\t- <original role> - original role of the database that created"
+	echo -e "\t\t  the restore file, if production flag is specified this is"
+	echo -e "\t\t  also the database name and new role, otherwise this is used" 
+	echo -e "\t\t  to construct the default database name. if <original role is"
+	echo -e "\t\t  the current user '${USER}' the role will not be altered"
+	echo -e "\t\t  (i.e. assume role is already configured\n"
+	echo -e "\t\t- If <database> is not defined the default database name is"
+	echo -e "\t\t    dev_<original role>_${USER}"
+	echo -e "\t\t  unless the production flag is specified\n"
+	echo -e "\t\t- If <new role> is not defined the current user '${USER}' is"
+	echo -e "\t\t  used unless the production flag is specified"
+	echo -e "\t\t  if <new role> and <role> are the same the role is not deleted\n"
+	echo -e "\t\t- Arguments apart from <options> are positional to skip the"
+	echo -e "\t\t  <database name> but specify a <new role> insert '-'\n"
+	echo -e "\n\t  N.B: In a production environment you'll need to remove the"
+	echo -e "\t  vassal files from the vassals directory to execute this script\n"
+	exit
 fi
 
+FILE_NAME=$1
+ORIG_ROLE=$2
 
-BACKUP_PATH=/home/${USER}/repo/backup/postgres
+BACKUP_PATH=/home/${USER}/repo/backup/${ORIG_ROLE}
 
 if [ "$3" != "" -a "$3" != "-" ];then
 	DATABASE_NAME=$3
 else
-	DATABASE_NAME="dev_${CUR_PROJ}_${USER}"
+	if [ "${PRODUCTION}" = true ]; then
+		DATABASE_NAME="${ORIG_ROLE}"
+	else
+		DATABASE_NAME="dev_${ORIG_ROLE}_${USER}"
+	fi
 fi
 
 if [ "$4" != "" -a "$4" != "-" ];then
 	NEW_ROLE=$4
 else
-	NEW_ROLE="${USER}"
+	if [ "${PRODUCTION}" = true ]; then
+		NEW_ROLE="${ORIG_ROLE}"
+	else
+		NEW_ROLE="${USER}"
+	fi
 fi
 
-if [ "$1" = "" ]; then
-	tabs 4
-	echo -e "\nUsage:\n\t$(basename $0) <restore file> [<project>] [<database name>] [<role>]\n"
-	echo -e "\t\t- If <restore file> does not exist relative to the current directory"
-	echo -e "\t\t  the directory /home/${USER}/repo/backup/postgres is searched\n"
-	echo -e "\t\t- If <project> is not defined the value from the environment"
-	echo -e "\t\t  variable CURRENT_PROJECT is used (usually the domain with dots"
-	echo -e "\t\t  replaced with underscores). This is used to construct the default"
-	echo -e "\t\t  database name and specify the role from the original system\n"
-	echo -e "\t\t- If <database> is not defined the default database name is"
-	echo -e "\t\t       dev_<project>_${USER}\n"
-	echo -e "\t\t- If <role> is not defined the current user '${USER}' is used\n"
-	echo -e "\t\t- Arguments are positional to skip an optional parameter insert '-'\n"
-	exit
+if [ "${PROMPT_FOR_PASSWORD}" = true ];then
+	PASSWORD=""
+	while [ "${PASSWORD}" = "" ]; do
+		echo -e "Enter Password for ${NEW_ROLE}: \c"
+		read -s PASSWORD
+		echo -e "\nConfirm Password for ${NEW_ROLE}: \c"
+		read -s PASSWORD_CONFIRM
+		if [ "${PASSWORD_CONFIRM}" != "${PASSWORD}" ]; then
+			echo -e "\nPasswords do not match"
+			PASSWORD=""
+		elif [ "${PASSWORD}" = "" ]; then
+			echo -e "\nNo Password entered"
+		fi
+	done
+	echo ""
 fi
-
-FILE_NAME=$1
 
 if [ -f ${FILE_NAME} ]; then
 	FILE_PATH=${FILE_NAME}
@@ -61,10 +114,34 @@ psql -X -U postgres -c "DROP DATABASE ${DATABASE_NAME}"
 psql -X -U postgres -c "CREATE DATABASE ${DATABASE_NAME} TEMPLATE=template0 ENCODING='utf-8';"
 
 
-psql -X -U postgres -c "DROP ROLE IF EXISTS ${CUR_PROJ};"
-psql -X -U postgres -c "CREATE ROLE ${CUR_PROJ};"
+if [ "${ORIG_ROLE}" != "${USER}" ]; then
+	psql -X -U postgres -c "DROP ROLE IF EXISTS ${ORIG_ROLE};"
+	if [ "${PASSWORD}" != "" ]; then
+		echo "Creating role ${ORIG_ROLE} with password"
+		psql -X -U postgres -c "CREATE ROLE ${ORIG_ROLE} WITH PASSWORD '${PASSWORD}' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"
+	else
+		echo "Creating role ${ORIG_ROLE} - no login"
+		psql -X -U postgres -c "CREATE ROLE ${ORIG_ROLE};"
+	fi
+fi
 
 psql -X --set ON_ERROR_STOP=on -U postgres -d ${DATABASE_NAME} --file ${FILE_PATH}
 
-psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY ${CUR_PROJ} TO ${NEW_ROLE}"
-psql -X -U postgres -c "DROP ROLE ${CUR_PROJ};"
+echo "Database restored"
+if [ "${ORIG_ROLE}" != "${NEW_ROLE}" ]; then
+	echo "Reassigning role"
+	if [ "${PASSWORD}" != "" -o "${NEW_ROLE}" != "${USER}"  ]; then
+		# if not on development box create the role
+		psql -X -U postgres -c "DROP ROLE IF EXISTS ${NEW_ROLE};"
+		psql -X -U postgres -c "CREATE ROLE ${NEW_ROLE} WITH PASSWORD '${PASSWORD}' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"
+	fi
+	psql -X -U postgres -d ${DATABASE_NAME} -c "REASSIGN OWNED BY ${ORIG_ROLE} TO ${NEW_ROLE}"
+	psql -X -U postgres -c "DROP ROLE ${ORIG_ROLE};"
+else
+	if [ "$PASSWORD" != "" ]; then
+		PASS_REQ="- Password Required"
+	else
+		PASS_REQ=""
+	fi
+	echo -e "\nRole for database \"${DATABASE_NAME}\" is \"${ORIG_ROLE}\" ${PASS_REQ}\n"
+fi
