@@ -1,0 +1,27 @@
+#!/bin/bash
+
+APP_DIR=$HOME/dev/app
+GIT_OPTIONS=-5
+
+if [ "$1" = "" ]; then
+	echo -e "Usage:\n\n\t$(basename $0) <app name> [< git log options e.g -p -5>]\n"
+	exit 2
+fi
+
+APP_PATH=$APP_DIR/$1
+
+shift  # drop the <app name> parameter
+
+if [ "$1" != "" ];then
+	GIT_OPTIONS=$@
+fi
+
+cd $APP_PATH
+
+if [ $(pwd) != $APP_PATH ]; then
+	echo -e "\nCannot change directory to $APP_PATH\n"
+	exit 2
+fi
+
+git log $GIT_OPTIONS
+

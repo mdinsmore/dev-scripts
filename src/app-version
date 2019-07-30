@@ -59,6 +59,8 @@ fi
 
 cd $projDir
 
+hasUnreleased=()
+
 for i in `cat requirements/production.txt | grep "=="`
 do
 	prefix=`echo $i | cut -d"=" -f1| cut -c1-3`
@@ -82,6 +84,7 @@ do
 		else
 			if [ "$appVersion" = "" ]; then
 				print_line $package $projVersion "Unreleased updates ($relVersion)" "$appBranch" "$branchEqual"
+				hasUnreleased+=" $package"
 			else
 				print_line $package $projVersion "New Version: $appVersion" "$appBranch" "$branchEqual"
 			fi
@@ -94,3 +97,18 @@ do
 done
 
 rm /tmp/version-$$.txt
+
+if [ "$hasUnreleased" != "" ];then
+	echo -e "View recent commits for apps with unreleased updates ($hasUnreleased) (Y/n)? \c"
+	read viewGit
+
+	if [ "$viewGit" != "n" ]; then
+	echo "===================================================================="
+	for app in $hasUnreleased; do
+		echo "Last 3 commits for $app"
+		echo "----------------------------"
+		app-gitlog $app -3
+		echo "===================================================================="
+	done
+	fi
+fi
