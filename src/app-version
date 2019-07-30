@@ -104,7 +104,7 @@ rm /tmp/version-$$.txt
 
 if [ "$verbose" = true ]; then
 	if [ "$hasUnreleased" != "" ];then
-		echo -e "\nView recent commits for apps with unreleased updates ($(echo "$hasUnreleased" | xargs)) (Y/n)? \c"
+		echo -e "\nView recent commits for apps with unreleased updates (${hasUnreleased#"${hasUnreleased%%[![:space:]]*}"}) (Y/n)? \c"
 		read viewGit
 
 		if [ "$viewGit" != "n" -a "$viewGit" != "N" ]; then
