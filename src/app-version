@@ -1,3 +1,5 @@
+#!/bin/bash
+
 appDir=$HOME/dev/app
 projDir=.
 RED="\033[0;31m"
@@ -10,19 +12,28 @@ CROSS=$(echo -e "${RED}\xe2\x9c\x97${NC}")
 function show_help() {
 	echo -e "Usage:\n\t$0 [-v|-h|-p<project name>\n\n"
 }
+
 function print_line() {
 	echo "$1|$2|$3|$4|$5" | awk -F\| '{ printf "%-20.20s %15.15s    %-35.35s %-20.20s %s\n", $1, $2, $3, $4, $5 }'
 }
 
-# A POSIX variable
-OPTIND=1         # Reset in case getopts has been used previously in the shell.
+function print_underlined() {
+	str=$1
+	echo -e "$str"
+	len_str=$(echo "$str" | wc -c)
+	count=1
+	while [ $count -lt $len_str ]; do
+		echo -n "-"
+		count=$(expr $count + 1)
+	done
+	echo ""
+}
 
-# Initialize our own variables:
-verbose=0
+OPTIND=1  # Reset in case getopts has been used previously in the shell.
 
 while getopts "h?vp:" opt; do
 	case "$opt" in
-	v)  verbose=1
+	v)  verbose=true
 		;;
 	p)  projDir=$OPTARG
 		;;
@@ -37,10 +48,6 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-if [ "$verbose" = "1" ]; then
-	echo "verbose=$verbose, project='$projDir', Leftovers: $@"
-fi
-
 if [ "$projDir" == "." ]; then
 	projDir=`pwd`
 fi
@@ -53,9 +60,6 @@ for i in `ls $appDir`; do
 	echo "$i|$version|$relVersion|$branch"
 done >> /tmp/version-$$.txt
 
-if [ "$verbose" = "1" ]; then
-	cat /tmp/version-$$.txt
-fi
 
 cd $projDir
 
@@ -98,17 +102,18 @@ done
 
 rm /tmp/version-$$.txt
 
-if [ "$hasUnreleased" != "" ];then
-	echo -e "View recent commits for apps with unreleased updates ($hasUnreleased) (Y/n)? \c"
-	read viewGit
+if [ "$verbose" = true ]; then
+	if [ "$hasUnreleased" != "" ];then
+		echo -e "\nView recent commits for apps with unreleased updates ($(echo "$hasUnreleased" | xargs)) (Y/n)? \c"
+		read viewGit
 
-	if [ "$viewGit" != "n" ]; then
-	echo "===================================================================="
-	for app in $hasUnreleased; do
-		echo "Last 3 commits for $app"
-		echo "----------------------------"
-		app-gitlog $app -3
+		if [ "$viewGit" != "n" -a "$viewGit" != "N" ]; then
 		echo "===================================================================="
-	done
+		for app in $hasUnreleased; do
+			print_underlined "Last 3 commits for $app"
+			app-gitlog $app -3
+			echo "===================================================================="
+		done
+		fi
 	fi
 fi

@@ -8,6 +8,15 @@ RED="\033[0;31m"
 BLUE="\033[0;34m"
 GREEN="\033[0;32m"
 NC="\033[0m"
+
+function show_help() {
+	echo -e "Usage:\n\t$0 [-v|-h|-p\n\n"
+
+	echo -e "\n\t-h - displays this message"
+	echo -e "\n\t-p - pull docs: pulls the docs to get recent updates to requirements\n"
+	echo -e "\n\t-v - verbose: displays commits for apps with unreleased updates"
+
+}
 if [ "${DEVELOPMENT_DIR}" == "" ];then
 	DEVELOPMENT_DIR="$HOME/dev/"
 else
@@ -21,7 +30,27 @@ if [ "${DOCS_DIR}" == "" ];then
 	DOCS_DIR="${DEVELOPMENT_DIR}module/docs"
 fi
 
-if [ "$1" = "-p" ];then
+
+OPTIND=1  # Reset in case getopts has been used previously in the shell.
+
+while getopts "h?vp" opt; do
+	case "$opt" in
+	v)  verbose=true
+		APP_VERSION_ARGS="-v"
+		;;
+	p)  pull_docs=true
+		;;
+	h|\?)
+		show_help
+		exit 0
+		;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+
+if [ "$pull_docs" = true ];then
 	CURR_DIR=`pwd`
 	cd ${DOCS_DIR}
 	if [ `pwd` != ${DOCS_DIR} ];then
@@ -95,5 +124,5 @@ echo ""
 if [ -f 'requirements/production.txt' ];then
 	echo "App Versions"
 	echo "------------"
-	app-version
+	app-version $APP_VERSION_ARGS
 fi
