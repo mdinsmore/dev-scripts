@@ -1,12 +1,34 @@
-#! /bin/bash
-if [ -z $CURRENT_PROJECT ]
-then
-	echo -e "The environment variable CURRENT_PROJECT is not set"
+#!/bin/bash
+
+function underline {
+	VAR=$1
+	echo ${VAR}
+	for (( i=1; i<=${#VAR}; i++)); do
+		echo -n "-"
+	done
+	echo ""
+}
+
+if [ "$1" = "" ]; then
+	if [ "${CURRENT_PROJECT}" != "" ]; then
+		DATABASE_NAME="dev_${CURRENT_PROJECT}_${USER}"
+	fi
+else
+	if [ "$1" = "-d" ]; then
+		if [ "$2" != "" ]; then
+			DATABASE_NAME=$2
+		fi
+	else
+		DATABASE_NAME="dev_$1_${USER}"
+	fi
+fi
+
+if [ "${DATABASE_NAME}" = "" ]; then
+	echo -e "\nUsage:\n\t$(basename $0) <project> | -d <database name>\n"
 	exit
 fi
 
-DATABASE_NAME="dev_${CURRENT_PROJECT}_${USER}"
-
-
-psql -X -U postgres -d ${DATABASE_NAME} -c "select app, name, applied from django_migrations order by app, applied;"
-
+(
+	underline "Migrations applied to the database \"${DATABASE_NAME}\""
+	psql -X -U postgres -d ${DATABASE_NAME} -c "select app, name, applied from django_migrations order by app, applied;"
+) | less
