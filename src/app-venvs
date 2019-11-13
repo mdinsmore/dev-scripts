@@ -1,10 +1,60 @@
-deactive
+#!/bin/bash
+
+BLACK="\033[0;30m"
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+NC="\033[0m"
+
+deactivate 2> /dev/null
 cd ~/dev/app
+
+if [ "$1" = "-r" ]; then
+
+	for i in $(ls -d */venv-*/bin); do
+		echo -e "$i $($i/python --version | cut -d' ' -f2)"
+	done
+
+	for i in $(ls); do
+		if [ -d "$i" ];then
+			echo -e "App: $i"
+			cd "$i"
+			recreate-venv $i
+			cd ..
+		fi
+	done
+fi
+
+deactivate 2> /dev/null
+SYS_PV=$(python3 --version | cut -d' ' -f2)
+echo "System Python version is: $SYS_PV"
 for i in $(ls); do
-	if [ -d "$i" ];then
-		echo "App: $i"
-		cd "$i"
-		recreate-venv $i
-		cd ..
+	if [ -d $i ];then
+		PY=$(ls $i/venv-*/bin/python 2>/dev/null | head -n1)
+		if [ "$PY" != "" -a -x "$PY" ]; then
+			APP_PV="$($PY --version | cut -d' ' -f2)"
+			APP_FOUND=true
+		else
+			APP_FOUND=false
+			if [ "$PY" = "" ]; then 
+				APP_PV="- No Virtual Environment"
+			else
+				APP_PV="- Incomplete Virtual Environment"
+			fi
+		fi
+
+		if [ "$APP_FOUND" = true -a "$APP_PV" != "$SYS_PV" ]; then
+			DIFFERENCE=true
+			echo -e "${RED}$i $APP_PV != $SYS_PV${NC}"
+		else
+			if [ "$APP_FOUND" = true ]; then
+				echo -e "${GREEN}$i $APP_PV${NC}"
+			else
+				echo -e "$i $APP_PV"
+			fi
+		fi
 	fi
 done
+
+if [ "$DIFFERENCE" = true ]; then
+	echo -e "\n${RED}Some apps are using an old version of python use \"$(basename $0) -r\" to fix${NC}\n"
+fi
