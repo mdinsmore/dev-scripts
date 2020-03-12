@@ -1,6 +1,10 @@
 #! /bin/bash
 
-OK_TO_UPDATE=false
+if [ "$1" = "-y" -o "$1" = "--yes" ]; then
+	OK_TO_UPDATE=true
+else
+	OK_TO_UPDATE=false
+fi
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 cd $DIR
@@ -29,13 +33,16 @@ else
 				echo "Script src/$script already in $HOME/bin"
 			fi
 		done
+		OK_TO_UPDATE=false
 	else
-		echo -e   "|\n| Update ${SCRIPTS_TO_UPDATE} scripts (y/N) \c"
-		read ok
+		if [ $OK_TO_UPDATE != true ]; then
+			echo -e   "|\n| Update ${SCRIPTS_TO_UPDATE} scripts (y/N) \c"
+			read ok
 
-		if [ "$ok" == 'y' -o "$ok" == "Y" ]
-		then
-			OK_TO_UPDATE=true
+			if [ "$ok" == 'y' -o "$ok" == "Y" ]
+			then
+				OK_TO_UPDATE=true
+			fi
 		fi
 	fi
 fi
