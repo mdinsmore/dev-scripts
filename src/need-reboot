@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ -f /var/run/reboot-required ]; then
+    echo "Reboot is required for the following packages:"
+    cat /var/run/reboot-required.pkgs
+    REBOOT_NOW="x"
+    while [[ ! "${REBOOT_NOW}" =~ ^(n|N|y|Y)$ ]]; do
+        echo -e "Reboot now (y/n) \c"
+        read REBOOT_NOW
+        if [[ "${REBOOT_NOW}" =~ ^(y|Y)$ ]]; then
+            sudo reboot
+        fi
+    done
+else
+    echo "No reboot required"
+fi
