@@ -52,12 +52,16 @@ if [ "$projDir" == "." ]; then
 	projDir=`pwd`
 fi
 
-for i in `ls $appDir`; do
-	cd $appDir/$i
+for appName in `ls $appDir`; do
+	cd $appDir/$appName
 	version=$(git log -1 | grep "^    version " | cut -d' ' -f6)
 	branch=$(git status | grep "On branch" | awk '{ print $3 }')
-	relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
-	echo "$i|$version|$relVersion|$branch"
+	if [ ! -f setup.py ]; then 
+		>&2 echo -e "N.B.: setup.py does not exist in app \'$appName\'"
+	else
+		relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
+	fi
+	echo "$appName|$version|$relVersion|$branch"
 done >> /tmp/version-$$.txt
 
 
@@ -65,12 +69,12 @@ cd $projDir
 
 hasUnreleased=()
 
-for i in `cat requirements/production.txt | grep "=="`
+for appLine in `cat requirements/production.txt | grep "=="`
 do
-	prefix=`echo $i | cut -d"=" -f1| cut -c1-3`
+	prefix=`echo $appLine | cut -d"=" -f1| cut -c1-3`
 	if [ ${prefix} == "kb-" ];then
-		package=`echo $i | cut -d"=" -f1| cut -c4-`
-		projVersion=`echo $i | cut -d"=" -f3`
+		package=`echo $appLine | cut -d"=" -f1| cut -c4-`
+		projVersion=`echo $appLine | cut -d"=" -f3`
 
 		appVersion=`grep "^$package|" /tmp/version-$$.txt | cut -d'|' -f2`
 		relVersion=`grep "^$package|" /tmp/version-$$.txt | cut -d'|' -f3`
@@ -94,8 +98,8 @@ do
 			fi
 		fi
 	else
-		package=`echo $i | cut -d"=" -f1`
-		projVersion=`echo $i | cut -d"=" -f3`
+		package=`echo $appLine | cut -d"=" -f1`
+		projVersion=`echo $appLine | cut -d"=" -f3`
 			print_line $package $projVersion "" "" ""
 	fi
 done
