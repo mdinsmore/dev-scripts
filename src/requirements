@@ -99,7 +99,7 @@ for REQ in $(grep == ${REQUIREMENTS_FILE}); do
 	fi
 
 	CURR_VERSION=$(echo ${REQ} | cut -d'=' -f3)
-	INST_VERSION=$(grep "^$CURR_PACKAGE==" /tmp/pip$$ | cut -d'=' -f3)
+	INST_VERSION=$(grep "^$(echo ${CURR_PACKAGE} | cut -d\[ -f1)==" /tmp/pip$$ | cut -d'=' -f3)
 
 	MAIN_PKG=$(echo "${CURR_PACKAGE}" | cut -d\[ -f1)
 	if [ "$MAIN_PKG" = "${CURR_PACKAGE}" ]; then
