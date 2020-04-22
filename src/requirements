@@ -51,9 +51,9 @@ shift $((OPTIND-1))
 
 
 if [ "$pull_docs" = true ];then
-	CURR_DIR=`pwd`
+	CURR_DIR=$(pwd)
 	cd ${DOCS_DIR}
-	if [ `pwd` != ${DOCS_DIR} ];then
+	if [ $(pwd) != ${DOCS_DIR} ];then
 		echo "Could not change to ${DOCS_DIR}"
 	else
 		git pull
@@ -81,7 +81,7 @@ fi
 TICK=$(echo -e "${GREEN}\xE2\x9C\x94${NC}")
 
 function print_line() {
-	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-20.20s %15.15s    %-30.30s %s\n", $1, $2, $3, $4 }'
+	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-22.22s %15.15s    %-30.30s %s\n", $1, $2, $3, $4 }'
 }
 
 echo ""
@@ -90,20 +90,26 @@ print_line "-------" "---------------" "$(echo -e "${BLACK}-----------------${NC
 
 pip freeze > /tmp/pip$$
 
-for REQ in `grep == ${REQUIREMENTS_FILE}`; do
-	CURR_PACKAGE=`echo ${REQ} | cut -d'=' -f1`
+for REQ in $(grep == ${REQUIREMENTS_FILE}); do
+	CURR_PACKAGE=$(echo ${REQ} | cut -d'=' -f1)
 
 	# ignore --no-binary and commented out lines
 	if [[ "$CURR_PACKAGE" == "--no-binary" ]] || [[ "$CURR_PACKAGE" == \#* ]];then
 		continue
 	fi
 
-	CURR_VERSION=`echo ${REQ} | cut -d'=' -f3`
-	INST_VERSION=`grep "^$CURR_PACKAGE==" /tmp/pip$$ | cut -d'=' -f3`
+	CURR_VERSION=$(echo ${REQ} | cut -d'=' -f3)
+	INST_VERSION=$(grep "^$CURR_PACKAGE==" /tmp/pip$$ | cut -d'=' -f3)
 
-	REF=`grep "^  ${CURR_PACKAGE}==" ${REQUIREMENTS_REFERENCE}`
-	REF_PACKAGE=`echo ${REF} | cut -d'=' -f1`
-	REF_VERSION=`echo ${REF} | cut -d'=' -f3 | cut -d' ' -f1`
+	MAIN_PKG=$(echo "${CURR_PACKAGE}" | cut -d\[ -f1)
+	if [ "$MAIN_PKG" = "${CURR_PACKAGE}" ]; then
+		PKG="${CURR_PACKAGE}=="
+	else
+		PKG="${MAIN_PKG}\["
+	fi
+	REF=$(grep "$PKG" ${REQUIREMENTS_REFERENCE})
+	REF_PACKAGE=$(echo ${REF} | cut -d'=' -f1)
+	REF_VERSION=$(echo ${REF} | cut -d'=' -f3 | cut -d' ' -f1)
 
 	if [ "${CURR_VERSION}" != "${REF_VERSION}" ];then
 		REF_VERSION_TEXT="$(echo -e "${RED}${REF_VERSION}${NC}")"
