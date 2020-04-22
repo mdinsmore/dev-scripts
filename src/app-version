@@ -14,7 +14,7 @@ function show_help() {
 }
 
 function print_line() {
-	echo "$1|$2|$3|$4|$5" | awk -F\| '{ printf "%-20.20s %15.15s    %-35.35s %-20.20s %s\n", $1, $2, $3, $4, $5 }'
+	echo "$1|$2|$3|$4|$5" | awk -F\| '{ printf "%-22.22s %15.15s    %-35.35s %-20.20s %s\n", $1, $2, $3, $4, $5 }'
 }
 
 function print_underlined() {
@@ -57,7 +57,7 @@ for appName in `ls $appDir`; do
 	version=$(git log -1 | grep "^    version " | cut -d' ' -f6)
 	branch=$(git status | grep "On branch" | awk '{ print $3 }')
 	if [ ! -f setup.py ]; then 
-		>&2 echo -e "N.B.: setup.py does not exist in app \'$appName\'"
+		>&2 echo -e "N.B.: setup.py does not exist in app '$appName'"
 	else
 		relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 	fi
