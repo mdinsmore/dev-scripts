@@ -1,3 +1,8 @@
+#!/bin/bash
+# 
+# Create a .env file (which should be added to git) and a .private file (not added
+# to git) with sensible defaults
+#
 if [ ! -f .env ]; then 
 	echo "Creating .env"
 	touch .env
@@ -14,7 +19,7 @@ if [ ! -f .env ]; then
 	echo "    source \$VE/bin/activate" >> .env
 	echo "" >> .env
 	echo "    # Set environment variables for this VE" >> .env
-	echo "    # export DJANGO_SETTINGS_MODULE=\"settings.dev_\`id -nu\`\"" >> .env
+	echo "    # export DJANGO_SETTINGS_MODULE=\"settings.dev_\${USER}\"" >> .env
 	echo "    source .private" >> .env
 	echo "fi" >> .env
 else
