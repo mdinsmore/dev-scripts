@@ -1,3 +1,4 @@
+#!/bin/bash
 LOG_FILE_NAME="access.log"
 CSV_FILE_NAME="acc-dom.csv"
 TEMP_FILE_NAME="/tmp/$$_acc_ip.txt"

@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ "$1" = "" ];then
 	VE=$(ls -d venv-* 2> /dev/null)
 else

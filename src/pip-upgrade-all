@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ ! -f requirements/base.txt ]
 then
 	echo "No base requirements file in the current directory"

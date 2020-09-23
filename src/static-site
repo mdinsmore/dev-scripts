@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ "${DJANGO_SETTINGS_MODULE}" = "" ]; then
 	echo "The DJANGO_SETTINGS_MODULE environment variable is not set"
 	echo "Change to a project directory and activate the virtual environment"

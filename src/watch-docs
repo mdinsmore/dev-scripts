@@ -1,3 +1,4 @@
+#!/bin/bash
 DOCS_DIRECTORY=$HOME/dev/module/docs
 
 cd ${DOCS_DIRECTORY}

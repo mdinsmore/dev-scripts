@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ "$3" = "" ];then
     echo -e "\nUsage:"
     echo -e "\t$(basename $0) <project group> <name> <description> [-m <master file> | -o <output path> | -d]\n\n"

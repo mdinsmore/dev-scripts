@@ -1,3 +1,4 @@
+#!/bin/bash
 OLD_IFS=${IFS}
 IFS=$'\n'
 for i in `git status --porcelain`
