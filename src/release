@@ -1,3 +1,4 @@
+#!/bin/bash
 PROD_REQUIREMENTS="requirements/production.txt"
 requirements -p
 echo ""
@@ -19,6 +20,7 @@ outfile="/tmp/$package-$$.tmp"
 wget -O ${outfile} ${PYPI_SERVER}${package} 2> /dev/null
 if [ ! -s ${outfile} ];then
 	echo -e "Cannot get data on this package from the pypi server \"$PYPI_SERVER\""
+	echo -e "If this is the first release of this package run with the --first option\n"
 	if [ "${FIRST_UPLOAD}" = "true" ]; then
 		released_version="UNKNOWN"
 	else
