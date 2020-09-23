@@ -1,4 +1,5 @@
 #!/bin/bash
 cd $HOME/dev/module/fabric
+git pull
 source .env
 fab $@
