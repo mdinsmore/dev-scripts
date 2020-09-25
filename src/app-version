@@ -1,5 +1,7 @@
 #!/bin/bash
 
+verbose=false
+
 appDir=$HOME/dev/app
 projDir=.
 RED="\033[0;31m"
@@ -57,7 +59,9 @@ for appName in `ls $appDir`; do
 	version=$(git log -1 | grep "^    version " | cut -d' ' -f6)
 	branch=$(git status | grep "On branch" | awk '{ print $3 }')
 	if [ ! -f setup.py ]; then 
-		>&2 echo -e "N.B.: setup.py does not exist in app '$appName'"
+		if [ "$verbose" = true ]; then
+			>&2 echo -e "N.B.: setup.py does not exist in app '$appName'"
+		fi
 	else
 		relVersion=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
 	fi
