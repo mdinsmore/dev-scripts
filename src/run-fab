@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ "$2" = "" ];then
+	echo -e "\nUsage:\n\t$(basename $0) <action e.g. deploy> <domain> [<version number e.g. 0.2.03>]\n"
+	exit
+fi
 cd $HOME/dev/module/fabric
 git pull
 source .env
