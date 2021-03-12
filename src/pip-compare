@@ -1,3 +1,4 @@
+#!/bin/bash
 REQUIREMENTS_FILE=requirements/base.txt
 # REQUIREMENTS_FILE=requirements.txt
 
