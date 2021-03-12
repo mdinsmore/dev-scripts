@@ -1,4 +1,17 @@
 #!/bin/bash
+TOOLBOX_VE=$(ls -d $HOME/dev/module/toolbox/venv-* 2>/dev/null | head -n 1)
+source $HOME/dev/module/toolbox/.private
+if [ "$TOOLBOX_VE" = "" ]; then
+	echo -e "\n\nCould not find the virtual environment in $HOME/dev/module/toolbox/"
+	exit
+fi
+if [ "${COMPANY_PREFIX}" = "" -o "${PYPIRC_SECTION}" = "" ]; then
+	echo -e "\n\nYou need to  add the following exports:"
+	echo -e "\n\texport COMPANY_PREFIX=<your company prefix>"
+	echo -e "\n\texport PYPIRC_SECTION=<section in ~/.pypirc that contains your pypi server address>"
+	echo -e "\n to $HOME/dev/module/toolbox/.private\n"
+	exit
+fi
 PROD_REQUIREMENTS="requirements/production.txt"
 requirements -p
 echo ""
@@ -64,8 +77,8 @@ done
 
 if [ "${DO_RELEASE,,}" = 'y' ]
 then
-	source $HOME/dev/module/fabric/venv-fabric/bin/activate && \
-	fab -f ../../module/fabric/release.py dist:prefix=kb,pypirc=dev && \
+	source $TOOLBOX_VE/bin/activate && \
+	python $HOME/dev/module/toolbox/kb.py --release --prefix=${COMPANY_PREFIX} --pypi=${PYPIRC_SECTION} && \
 	cd . && git push
 else
 	echo "Aborted"
