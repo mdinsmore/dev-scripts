@@ -110,18 +110,20 @@ done
 
 rm /tmp/version-$$.txt
 
-if [ "$verbose" = true ]; then
-	if [ "$hasUnreleased" != "" ];then
-		echo -e "\nView recent commits for apps with unreleased updates (${hasUnreleased#"${hasUnreleased%%[![:space:]]*}"}) (Y/n)? \c"
+if [ "$hasUnreleased" != "" ];then
+	if [ "$verbose" = true ]; then
+		echo -e "\nView recent unreleased commits for apps (${hasUnreleased#"${hasUnreleased%%[![:space:]]*}"}) (Y/n)? \c"
 		read viewGit
 
 		if [ "$viewGit" != "n" -a "$viewGit" != "N" ]; then
 		echo "===================================================================="
 		for app in $hasUnreleased; do
-			print_underlined "Last 3 commits for $app"
-			app-gitlog $app -3
+			print_underlined "Last 4 commits for $app"
+			app-gitlog $app -4
 			echo "===================================================================="
-		done
+		done | more
 		fi
+	else
+		echo -e "\n${GREEN}View recent unreleased commits for apps (${hasUnreleased#"${hasUnreleased%%[![:space:]]*}"}) with -v option${NC}\n"
 	fi
 fi
