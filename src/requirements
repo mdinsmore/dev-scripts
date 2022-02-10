@@ -49,6 +49,14 @@ done
 
 shift $((OPTIND-1))
 
+# check that docs are not more than 24 hours out of date
+LAST_PULL=$(stat -c %Y $DOCS_DIR/.git/FETCH_HEAD)
+TIME_NOW=$(date +%s)
+DIFF=$(($TIME_NOW - $LAST_PULL))
+
+if (($DIFF > 86400 )); then
+	pull_docs=true
+fi
 
 if [ "$pull_docs" = true ];then
 	CURR_DIR=$(pwd)
@@ -81,7 +89,7 @@ fi
 TICK=$(echo -e "${GREEN}\xE2\x9C\x94${NC}")
 
 function print_line() {
-	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-22.22s %15.15s    %-30.30s %s\n", $1, $2, $3, $4 }'
+	echo "$1|$2|$3|$4" | awk -F\| '{ printf "%-25.25s %15.15s    %-30.30s %s\n", $1, $2, $3, $4 }'
 }
 
 echo ""
@@ -107,7 +115,11 @@ for REQ in $(grep == ${REQUIREMENTS_FILE}); do
 	else
 		PKG="${MAIN_PKG}\["
 	fi
-	REF=$(grep "$PKG" ${REQUIREMENTS_REFERENCE})
+	PKG="${MAIN_PKG}[\[\=]"
+	REF=$(grep "^  $PKG" ${REQUIREMENTS_REFERENCE})
+	if [ "$REF" = "" ]; then
+		REF=$(grep "$PKG" ${REQUIREMENTS_REFERENCE})
+	fi
 	REF_PACKAGE=$(echo ${REF} | cut -d'=' -f1)
 	REF_VERSION=$(echo ${REF} | cut -d'=' -f3 | cut -d' ' -f1)
 
@@ -132,3 +144,5 @@ if [ -f 'requirements/production.txt' ];then
 	echo "------------"
 	app-version $APP_VERSION_ARGS
 fi
+
+git status
