@@ -22,6 +22,13 @@ else
 	echo -e "---------------------------"
 fi
 
+create-dot-env
+
+if [ "$2" != "" ];then
+	if [ "$2" = "-p" ]; then
+		REQUIREMENTS="requirements/production.txt"
+	fi
+fi
 # Ubuntu 14.04 and earlier
 # pyvenv-3.4 --without-pip $VENV
 # source $VENV/bin/activate
@@ -29,11 +36,12 @@ fi
 # python get-pip.py
 # mv get-pip.py ~/bin/
 
-create-dot-env
 
-REQUIREMENTS=requirements/local.txt
-if [ ! -f requirements/local.txt -a -f requirements.txt ]; then
+if [ "$REQUIREMENTS" = "" ]; then
+	REQUIREMENTS=requirements/local.txt
+	if [ ! -f requirements/local.txt -a -f requirements.txt ]; then
 		REQUIREMENTS=requirements.txt
+	fi
 fi
 
 python3 -m venv ${VENV} && \
