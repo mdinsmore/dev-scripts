@@ -1,15 +1,25 @@
 #!/bin/bash
-TOOLBOX_VE=$(ls -d $HOME/dev/module/toolbox/venv-* 2>/dev/null | head -n 1)
-source $HOME/dev/module/toolbox/.private
+CUR_DIR=$(pwd)
+
+TOOLBOX_DIR=$HOME/dev/module/toolbox
+
+if [ -d ${TOOLBOX_DIR} ]; then
+	cd ${TOOLBOX_DIR} && git pull && cd ${CUR_DIR}
+else
+	echo -e "\n\nCould not find Toolbox directory ${TOOLBOX_DIR}"
+	exit
+fi
+TOOLBOX_VE=$(ls -d $TOOLBOX_DIR/venv-* 2>/dev/null | head -n 1)
+source $TOOLBOX_DIR/.private
 if [ "$TOOLBOX_VE" = "" ]; then
-	echo -e "\n\nCould not find the virtual environment in $HOME/dev/module/toolbox/"
+	echo -e "\n\nCould not find the virtual environment in $TOOLBOX_DIR/"
 	exit
 fi
 if [ "${COMPANY_PREFIX}" = "" -o "${PYPIRC_SECTION}" = "" ]; then
 	echo -e "\n\nYou need to  add the following exports:"
 	echo -e "\n\texport COMPANY_PREFIX=<your company prefix>"
 	echo -e "\n\texport PYPIRC_SECTION=<section in ~/.pypirc that contains your pypi server address>"
-	echo -e "\n to $HOME/dev/module/toolbox/.private\n"
+	echo -e "\n to $TOOLBOX_DIR/.private\n"
 	exit
 fi
 PROD_REQUIREMENTS="requirements/production.txt"
@@ -78,7 +88,7 @@ done
 if [ "${DO_RELEASE,,}" = 'y' ]
 then
 	source $TOOLBOX_VE/bin/activate && \
-	python $HOME/dev/module/toolbox/kb.py --release --prefix=${COMPANY_PREFIX} --pypi=${PYPIRC_SECTION} && \
+	python $TOOLBOX_DIR/kb.py --release --prefix=${COMPANY_PREFIX} --pypi=${PYPIRC_SECTION} && \
 	cd . && git push
 else
 	echo "Aborted"
