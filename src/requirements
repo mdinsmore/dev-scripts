@@ -98,11 +98,11 @@ print_line "-------" "---------------" "$(echo -e "${BLACK}-----------------${NC
 
 pip freeze > /tmp/pip$$
 
-for REQ in $(grep == ${REQUIREMENTS_FILE}); do
+for REQ in $(grep == ${REQUIREMENTS_FILE} | grep -v "^#"); do
 	CURR_PACKAGE=$(echo ${REQ} | cut -d'=' -f1)
 
-	# ignore --no-binary and commented out lines
-	if [[ "$CURR_PACKAGE" == "--no-binary" ]] || [[ "$CURR_PACKAGE" == \#* ]];then
+	# ignore --no-binary
+	if [[ "$CURR_PACKAGE" == "--no-binary" ]];then
 		continue
 	fi
 
