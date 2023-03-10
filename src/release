@@ -22,6 +22,15 @@ if [ "${COMPANY_PREFIX}" = "" -o "${PYPIRC_SECTION}" = "" ]; then
 	echo -e "\n to $TOOLBOX_DIR/.private\n"
 	exit
 fi
+
+if [ -f Gruntfile.js ]; then
+	grunt
+fi
+
+if [ -d scss/ ]; then
+	npm run scss-minify
+fi
+
 PROD_REQUIREMENTS="requirements/production.txt"
 requirements -p
 echo ""
