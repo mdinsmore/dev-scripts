@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -f /var/run/reboot-required ]; then
+if [ -f /run/reboot-required ]; then
     echo "Reboot is required for the following packages:"
-    cat /var/run/reboot-required.pkgs
+    [ -f /run/reboot-required.pkgs ] && cat /run/reboot-required.pkgs || echo "Not listed"
     REBOOT_NOW="x"
     while [[ ! "${REBOOT_NOW}" =~ ^(n|N|y|Y)$ ]]; do
         echo -e "Reboot now (y/n) \c"
