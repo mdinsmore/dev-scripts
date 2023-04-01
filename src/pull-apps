@@ -11,7 +11,7 @@ if [ "$1" != "" ]; then
     APP_LIST=$1
 fi
 
-echo "App|Branch|Status" | gawk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
+echo "App|Branch|Status" | awk  -F \| '{ printf "%-15.15s  %-20.20s %s \n", $1, $2, $3 }'
 
 for APP in ${APP_LIST}; do
     cd ${APP_DIR}/${APP}
@@ -48,6 +48,6 @@ for APP in ${APP_LIST}; do
     fi
     
 
-    echo "${COLOUR}|${APP}|${BRANCH}|${STATUS}|${CHANGES}|${NC}" | gawk  -F \| '{ printf "\r%s%-15.15s %-20.20s %s %s%s\n", $1, $2, $3, $4, $5, $6 }'
+    echo "${COLOUR}|${APP}|${BRANCH}|${STATUS}|${CHANGES}|${NC}" | awk  -F \| '{ printf "\r%s%-15.15s %-20.20s %s %s%s\n", $1, $2, $3, $4, $5, $6 }'
     rm /tmp/app-pull-$$ /tmp/app-status-$$ /tmp/app-status-$$-a /tmp/untracked-branches-$$
 done
