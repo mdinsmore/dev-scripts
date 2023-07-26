@@ -28,7 +28,7 @@ if [ -f Gruntfile.js ]; then
 fi
 
 if [ -d scss/ ]; then
-	npm run scss-minify
+	pnpm scss-minify
 fi
 
 PROD_REQUIREMENTS="requirements/production.txt"
