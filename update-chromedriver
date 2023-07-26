@@ -1,0 +1,9 @@
+#!/bin/bash
+cd /tmp
+
+pnpm dlx @puppeteer/browsers install chromedriver@stable
+
+mv chromedriver/*/chromedriver-linux64/chromedriver ~/bin/
+
+rm -r chromedriver
+
