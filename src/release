@@ -40,8 +40,8 @@ if [ "$1" = "--first" ]; then
 fi
 
 PYPI_SERVER="$(grep index-url $HOME/.config/pip/pip.conf | awk '{ print $3 }')"
-package=`tr -d ' ' < setup.py| grep "^name=" | sed -e 's/name=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
-version=`tr -d ' ' < setup.py| grep "^version=" | sed -e 's/version=//g' | sed -e 's/,//g' | sed "s/^\([\"']\)\(.*\)\1\$/\2/g"`
+package=$(tr -d ' ' < setup.py| grep "^name=" | sed -e "s/name=[\"']//g" | sed -e "s/[\"'],//g")
+version=$(tr -d ' ' < setup.py| grep "^version=" | sed -e "s/version=[\"']//g" | sed -e "s/[\"'],//g")
 if [ "$package" = "" ]; then
 	echo "Cannot identify package - ABORTING"
 	exit 2
@@ -59,7 +59,7 @@ if [ ! -s ${outfile} ];then
 		exit
 	fi
 else
-	tmp=`sed -e 's/kb\/dev/\nkb\/dev/g' ${outfile} | grep -v '<h1>' | grep -v '</h1>' | grep "^kb/dev" | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1`
+    tmp=$(sed -e 's/kb\/dev/\nkb\/dev/g' ${outfile} | grep -v '<h1>' | grep -v '</h1>' | grep "^kb/dev" | grep ${package} | head -1 | cut -d'>' -f2 | cut -d'<' -f1)
 	tmp=${tmp#$prefix}
 	released_version=${tmp%$suffix}
 fi
