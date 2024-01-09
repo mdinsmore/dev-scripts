@@ -15,7 +15,10 @@ if [ ! -d .git ]; then
 	exit 2
 fi
 
+# sync the remote repo, removing any branches that don't exist
 git fetch --prune
+
+# get the current list of remove branches
 git branch -a --no-color | grep remotes/origin > ${REMOTES_LIST}
 
 if [ ! -s ${REMOTES_LIST} ]; then
@@ -30,7 +33,9 @@ if [ "$1" = "-D" ]; then
 	DELETE_UNTRACKED="yes"
 fi
 
-for BRANCH in $(git branch -l --no-color | grep -v "^\*" | grep -v master); do
+# compare local branches with the remote list (excluding master, main and the
+# current branch) and optionally delete untracked
+for BRANCH in $(git branch -l --no-color | grep -v "^\*" | grep -v master | grep -v main); do
 	REMOTE=$(grep "^  remotes/origin/${BRANCH}" ${REMOTES_LIST})
 	if [ "${REMOTE}" = "" ]; then
 		((UNTRACKED++))
