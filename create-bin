@@ -38,7 +38,6 @@ else
 		if [ $OK_TO_UPDATE != true ]; then
 			echo -e   "|\n| Update ${SCRIPTS_TO_UPDATE} scripts (y/N) \c"
 			read ok
-
 			if [ "$ok" == 'y' -o "$ok" == "Y" ]
 			then
 				OK_TO_UPDATE=true
