@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$1" = "" ];then
+if [ "$1" = "" -o "${1:0:2}" = "--" ];then
 	VE=$(ls -d venv-* 2> /dev/null)
 else
 	VE="venv-$1"
@@ -21,7 +21,7 @@ echo "Deleting ${VE}"
 rm -rf ${VE}
 
 echo "Creating Virtual Environment in: ${VE}"
-create-venv ${SUFFIX}
+create-venv ${SUFFIX} $@
 
 echo "Removing compiled python modules..."
 find . -name \*.pyc -delete
