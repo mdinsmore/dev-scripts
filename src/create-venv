@@ -66,7 +66,7 @@ pip install --upgrade wheel pip && \
 if [ "$REQUIREMENTS" != "" ];then
 	if [ "$REQUIREMENTS" = "pyproject.toml" ];then
 		echo "Installing using pyproject.toml"
-		# pip install -e .
+		pip install -e .[dev]
 	else 
 		echo "Installing using $REQUIREMENTS"
 		pip install -r ${REQUIREMENTS}
@@ -76,7 +76,6 @@ fi
 RETURN=$?
 
 if [ $INSTALL_IPDB ]; then
-	echo "INSTALLING IPDB AND BLACK $INSTALL_IPDB\n"
 	pip install ipdb black
 fi
 
