@@ -1,4 +1,11 @@
 #!/bin/bash
+
+BLACK="\033[0;30m"
+RED="\033[0;31m"
+BLUE="\033[0;34m"
+GREEN="\033[0;32m"
+NC="\033[0m"
+
 if [ -z "$1" ]; then
 	echo -e "\nUsage:\n"
 	echo -e "\t`basename $0` <venv> [--no-ipdb|--production|--toml]"
@@ -27,6 +34,23 @@ if [ -d "${VENV}" ]; then
 else
 	echo -e "Create virtual environment: ${VENV}"
 	echo -e "---------------------------"
+fi
+
+APP_DIR="$HOME/dev/app"
+APP_REQUIREMENTS="requirements/apps.txt"
+RELEASE_REQUIREMENTS="requirements/release.txt"
+if [ -f $RELEASE_REQUIREMENTS ]; then
+
+    # clear the app requirements file
+    echo -n > $APP_REQUIREMENTS
+
+    for REQ in $(cat $RELEASE_REQUIREMENTS); do
+        APP="${REQ%%=*}"
+        APP_LOCATION="$APP_DIR/${APP#*-}"
+        # the line: kb-base==0.1.2
+        # add this to the apps.txt file: kb-base @ file:///home/user/dev/app/base
+        echo "${APP} @ file://${APP_LOCATION}" >> $APP_REQUIREMENTS
+    done
 fi
 
 INSTALL_IPDB=true
@@ -80,12 +104,16 @@ if [ $INSTALL_IPDB ]; then
 fi
 
 if [ $RETURN = 0 -a $? = 0 ];then
-	echo -e "\n*************************************************"
-	echo -e   "* Now run cd . to activate your new environment *"
-	echo -e   "*************************************************\n"
+	echo -e "\n${GREEN}"
+	echo "*************************************************"
+	echo "* Now run cd . to activate your new environment *"
+	echo "*************************************************"
 else
-	echo -e "\n********************************************************************************"
-	echo -e   "* An error occurred please fix this issue and recreate the virtual environment *"
-	echo -e   "********************************************************************************\n"
+	echo -e "\n${RED}"
+	echo "********************************************************************************"
+	echo "* An error occurred please fix this issue and recreate the virtual environment *"
+	echo "********************************************************************************"
 fi
+
+echo -e "${NC}\n"
 
