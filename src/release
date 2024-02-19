@@ -97,7 +97,7 @@ done
 if [ "${DO_RELEASE,,}" = 'y' ]
 then
 	source $TOOLBOX_VE/bin/activate && \
-	python $TOOLBOX_DIR/kb.py --release --prefix=${COMPANY_PREFIX} --pypi=${PYPIRC_SECTION} && \
+	python $TOOLBOX_DIR/kb.py --scss-built --release --prefix=${COMPANY_PREFIX} --pypi=${PYPIRC_SECTION} && \
 	cd . && git push
 else
 	echo "Aborted"
