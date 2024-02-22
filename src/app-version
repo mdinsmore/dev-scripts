@@ -16,7 +16,7 @@ function show_help() {
 }
 
 function print_line() {
-	echo "$1|$2|$3|$4|$5" | awk -F\| '{ printf "%-22.22s %15.15s    %-35.35s %-20.20s %s\n", $1, $2, $3, $4, $5 }'
+	echo "$1|$2|$3|$4|$5" | awk -F\| '{ printf "%-15.15s %15.15s    %-35.35s %-20.20s %s\n", $1, $2, $3, $4, $5 }'
 }
 
 function print_underlined() {
@@ -73,7 +73,12 @@ cd $projDir
 
 hasUnreleased=()
 
-for appLine in `cat requirements/production.txt | grep "=="`
+if [ -f requirements/release.txt ]; then
+    PROD_FILE=requirements/release.txt
+else
+    PROD_FILE=requirements/production.txt
+fi
+for appLine in `cat ${PROD_FILE} | grep "=="`
 do
 	prefix=`echo $appLine | cut -d"=" -f1| cut -c1-3`
 	if [ ${prefix} == "kb-" ];then

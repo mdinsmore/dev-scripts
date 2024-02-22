@@ -148,4 +148,38 @@ if [ "${COMPANY_PREFIX}" = "" -o "${PYPIRC_SECTION}" = "" ]; then
 	exit
 fi
 
+touch /tmp/set-br-$$
+
+if [ -f requirements/apps.txt ]; then
+    for APP in $(cat requirements/apps.txt | awk '{ print $3 }' | cut -c8-); do
+        if [ -d $APP ]; then
+            cd $APP
+            echo "$APP|$(git branch --show-current)" >> /tmp/set-br-$$
+        fi
+    done
+fi
+
+cd $CUR_DIR
+
 source $TOOLBOX_VE/bin/activate && python $TOOLBOX_DIR/kb.py --checkout --pull
+
+cat /tmp/set-br-$$ | sed -r "s|^$HOME/dev/app/||g" | diff - requirements/branch.txt
+
+if [ $? != 0 -a -f requirements/apps.txt ]; then
+    # branches not the same so remove the build so wheel is rebuilt
+    for APP in $(cat requirements/apps.txt | awk '{ print $3 }' | cut -c8-); do
+        if [[ ${APP} == $HOME/dev/app* ]]; then
+            BUILD="$APP/build"
+            if [ -d $BULID ]; then
+                echo "Removing app build directory $BUILD"
+                rm -r $BUILD
+            fi
+        else
+            echo "$APP is not correct"
+        fi
+    done
+fi
+
+if [ -f /tmp/set-br-$$ ]; then
+    rm /tmp/set-br-$$
+fi
