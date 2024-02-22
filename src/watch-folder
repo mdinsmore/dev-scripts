@@ -57,7 +57,9 @@ def watch_directory(directory, process_on_change):
         if added or removed or updated:
             subprocess.run(process_on_change.split(" "))
             last_change = datetime.now()
-        before = after
+
+        # reread in case process changes files
+        before = directory_dict(directory)
         try:
             time.sleep(2)
         except KeyboardInterrupt:
