@@ -41,14 +41,14 @@ APP_REQUIREMENTS="requirements/apps.txt"
 RELEASE_REQUIREMENTS="requirements/release.txt"
 if [ -f $RELEASE_REQUIREMENTS ]; then
 
-    # clear the app requirements file
+    # rebuild the apps.txt requirements file
     echo -n > $APP_REQUIREMENTS
 
     for REQ in $(cat $RELEASE_REQUIREMENTS); do
         APP="${REQ%%=*}"
         APP_LOCATION="$APP_DIR/${APP#*-}"
-        # the line: kb-base==0.1.2
-        # add this to the apps.txt file: kb-base @ file:///home/user/dev/app/base
+        # the line from release.txt: kb-base==0.1.2
+        # will create the line in apps.txt: kb-base @ file:///home/<user>/dev/app/base
         echo "${APP} @ file://${APP_LOCATION}" >> $APP_REQUIREMENTS
     done
 fi
@@ -70,37 +70,41 @@ if [ "$2" != "" ];then
 fi
 
 if [ "$REQUIREMENTS" = "" ]; then
-	if [ -f requirements/local.txt ]; then
+	if [ -f pyproject.toml -a -f requirements/apps.txt ]; then
+		REQUIREMENTS=pyproject.toml
+	elif [ -f requirements/local.txt ]; then
 	    REQUIREMENTS=requirements/local.txt
 	elif [ -f requirements.txt ]; then
 		REQUIREMENTS=requirements.txt
-	elif [ -f pyproject.toml ]; then
-		REQUIREMENTS=pyproject.toml
 	fi
 fi
 
 if [ "$REQUIREMENTS" = "" -o ! -f "$REQUIREMENTS" ]; then
 	echo "\n *** No requirements file ($REQUIREMENTS) found ***\n"
 	REQUIREMENTS=""
+else
+	set-branches
 fi
+
+UV_PATH=$(which uv)
 
 python3 -m venv ${VENV} && \
 source ${VENV}/bin/activate && \
-pip install --upgrade wheel pip && \
+$UV_PATH pip install --upgrade wheel pip setuptools && \
 if [ "$REQUIREMENTS" != "" ];then
 	if [ "$REQUIREMENTS" = "pyproject.toml" ];then
 		echo "Installing using pyproject.toml"
-		pip install -e .[dev]
+		$UV_PATH pip install -e .[dev]
 	else 
 		echo "Installing using $REQUIREMENTS"
-		pip install -r ${REQUIREMENTS}
+		$UV_PATH pip install -r ${REQUIREMENTS}
 	fi
 fi
 
 RETURN=$?
 
 if [ $INSTALL_IPDB ]; then
-	pip install ipdb black
+	$UV_PATH pip install ipdb black
 fi
 
 if [ $RETURN = 0 -a $? = 0 ];then
