@@ -80,7 +80,7 @@ if [ "$REQUIREMENTS" = "" ]; then
 fi
 
 if [ "$REQUIREMENTS" = "" -o ! -f "$REQUIREMENTS" ]; then
-	echo "\n *** No requirements file ($REQUIREMENTS) found ***\n"
+	echo -e "\n *** No requirements file ($REQUIREMENTS) found ***\n"
 	REQUIREMENTS=""
 else
 	set-branches
