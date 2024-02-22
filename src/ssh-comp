@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if [ "$(which ssh-diff)" = "" ];the
+if [ "$(which ssh-diff)" = "" ];then
     echo "This script requires ssh-diff."
     echo "On debian based systems install using sudo apt install ssh-tools"
     exit 2
+fi
+
 OPTS=
 
 if [ "$1" = "-w" ];then
@@ -12,7 +14,7 @@ if [ "$1" = "-w" ];then
 fi
 
 if [ "$2" = "" ]; then
-    echo "\nUsage: $(basename($0)) [-w] <file name> <remote host>:<remote directory>\n"
+    echo -e "\nUsage: $(basename $0) [-w] <file name> <remote host>:<remote directory>\n"
     exit 2
 fi
 
