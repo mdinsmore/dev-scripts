@@ -86,7 +86,9 @@ else
 	set-branches
 fi
 
-UV_PATH=$(which uv)
+if [ "$REQUIREMENTS" = "pyproject.toml" ];then
+    UV_PATH=$(which uv)
+fi
 
 python3 -m venv ${VENV} && \
 source ${VENV}/bin/activate && \
