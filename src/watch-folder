@@ -25,8 +25,11 @@ def display_timer(last_change):
 def directory_dict(directory):
     files = {}
     for file in os.listdir(directory):
-        fstat = os.stat(os.path.join(directory, file))
-        files.update({file: fstat.st_mtime})
+        try:
+            fstat = os.stat(os.path.join(directory, file))
+            files.update({file: fstat.st_mtime})
+        except:
+            pass
     return files
 
 
