@@ -58,11 +58,12 @@ fi
 
 FILE_NAME=$1
 ORIG_ROLE=$2
+ORIG_ROLE=${2//./_}
 
 BACKUP_PATH=/home/${USER}/repo/backup/${ORIG_ROLE}
 
 if [ "$3" != "" -a "$3" != "-" ];then
-	DATABASE_NAME=$3
+	DATABASE_NAME=${3//./_}
 else
 	if [ "${PRODUCTION}" = true ]; then
 		DATABASE_NAME="${ORIG_ROLE}"
@@ -72,7 +73,7 @@ else
 fi
 
 if [ "$4" != "" -a "$4" != "-" ];then
-	NEW_ROLE=$4
+	NEW_ROLE=${4//./_}
 else
 	if [ "${PRODUCTION}" = true ]; then
 		NEW_ROLE="${ORIG_ROLE}"
