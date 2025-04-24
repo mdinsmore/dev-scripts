@@ -18,7 +18,7 @@ def parse_line(line):
     message = ' '.join(rest[2:]).strip()
 
     return LogEntry(
-            date=date, line=line[:-1],server=server, script=script, message=message
+        date=date, line=line[:-1],server=server, script=script, message=message
     )
 
 def format_file(file_name, script=None):
