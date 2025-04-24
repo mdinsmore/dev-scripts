@@ -170,8 +170,10 @@ if [ $? != 0 -a -f requirements/apps.txt ]; then
     for APP in $(cat requirements/apps.txt | awk '{ print $3 }' | cut -c8-); do
         if [[ ${APP} == $HOME/dev/app* ]]; then
             BUILD="$APP/build"
-            if [ -d $BULID ]; then
+
+            if [ -d "$BULID" ]; then
                 echo "Removing app build directory $BUILD"
+                ls -asl $BUILD
                 rm -r $BUILD
             fi
         else
