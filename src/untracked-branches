@@ -10,6 +10,15 @@ NC="$(echo -e "\033[0m")"
 
 REMOTES_LIST=/tmp/$$-remote
 
+MAIN_BRANCH=$(echo "$(git branch -l --no-color | grep -E " (master|main)$" | cut -c3-)")
+
+if [ "$MAIN_BRANCH" = "" ];then
+	echo "Cannot identify main branch"
+	exit
+else
+	echo "Main branch is $MAIN_BRANCH"
+fi
+
 if [ ! -d .git ]; then
 	echo -e "\n${RED}This directory does not contain a git repository${NC}\n"
 	exit 2
@@ -35,14 +44,21 @@ fi
 
 # compare local branches with the remote list (excluding master, main and the
 # current branch) and optionally delete untracked
-for BRANCH in $(git branch -l --no-color | grep -v "^\*" | grep -v master | grep -v main); do
+# git branch -l --no-color | grep -v "^\*" > /tmp/$$
+# 
+# cat /tmp/$$
+# echo "Filtering out $MAIN_BRANCH using \"cat /tmp/$$ | grep -v ${MAIN_BRANCH}\""
+# cat /tmp/$$ | grep -v "${MAIN_BRANCH}"
+# rm /tmp/$$
+for BRANCH in $(git branch -l --no-color | grep -v "^\*" | grep -v "${MAIN_BRANCH}"); do
+	# echo "Branch: $BRANCH"
 	REMOTE=$(grep "^  remotes/origin/${BRANCH}" ${REMOTES_LIST})
 	if [ "${REMOTE}" = "" ]; then
 		((UNTRACKED++))
 		if [ "${DELETE_UNTRACKED}" = "yes" ]; then
 			echo "${BRANCH}"
 			echo "---------"
-			git log master..${BRANCH}
+			git log ${MAIN_BRANCH}..${BRANCH}
 			echo -e "\nDelete the branch \"${BRANCH}\" (y/N) \c"
 			read ok
 			if [ "$ok" = "y" ]; then
